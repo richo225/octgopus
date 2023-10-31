@@ -62,3 +62,17 @@ func (a *Accounts) withdraw(signer string, amount uint64) error {
 
 	return nil
 }
+
+func (a *Accounts) send(sender string, recipient string, amount uint64) error {
+	err := a.withdraw(sender, amount)
+	if err != nil {
+		return err
+	}
+
+	err = a.deposit(recipient, amount)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
