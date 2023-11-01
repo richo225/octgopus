@@ -12,8 +12,8 @@ type Order struct {
 	size uint64
 }
 
-func newOrder(side Side, size uint64) *Order {
-	return &Order{side, size}
+func newOrder(side Side, size uint64) Order {
+	return Order{side, size}
 }
 
 type Limit struct {
