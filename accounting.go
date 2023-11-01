@@ -29,21 +29,22 @@ func newAccounts() *Accounts {
 
 func (a *Accounts) balanceOf(signer string) (uint64, error) {
 	balance, ok := a.accounts[signer]
-	if !ok {
+	if ok {
+		return balance, nil
+	} else {
 		return 0, &AccountNotFoundError{signer}
 	}
-
-	return balance, nil
 }
 
+// Either deposits the `amount` provided into the `signer` account or adds the amount to the existing account
 func (a *Accounts) deposit(signer string, amount uint64) error {
 	balance, err := a.balanceOf(signer)
 	if err != nil {
-		return err
+		a.accounts[signer] = amount
+	} else {
+		newBalance := balance + amount
+		a.accounts[signer] = newBalance
 	}
-
-	newBalance := balance + amount
-	a.accounts[signer] = newBalance
 
 	return nil
 }
