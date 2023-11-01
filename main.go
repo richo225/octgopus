@@ -13,7 +13,7 @@ func main() {
 
 	orderbook := newOrderBook()
 	orderbook.addOrder(250, *buyOrder)
-	orderbook.addOrder(200, *buyOrder)
+	orderbook.addOrder(200, *sellOrder)
 
 	pretty.Print(orderbook)
 }

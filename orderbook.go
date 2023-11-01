@@ -57,5 +57,14 @@ func (book *Orderbook) addOrder(price uint64, order Order) {
 			newLimit.addOrder(order)
 			book.bids[price] = *newLimit
 		}
+	} else {
+		limit, ok := book.asks[price]
+		if ok {
+			limit.addOrder(order)
+		} else {
+			newLimit := newLimit(price)
+			newLimit.addOrder(order)
+			book.asks[price] = *newLimit
+		}
 	}
 }
