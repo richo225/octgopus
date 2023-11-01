@@ -2,17 +2,15 @@ package main
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBalanceOfAccountNotFound(t *testing.T) {
 	accounts := newAccounts()
 
 	_, err := accounts.balanceOf("alice")
-	if err == nil {
-		t.Errorf("balanceOf(alice) returned nil error, expected AccountNotFoundError")
-	} else if _, ok := err.(*AccountNotFoundError); !ok {
-		t.Errorf("balanceOf(alice) returned %v, expected AccountNotFoundError", err)
-	}
+	assert.IsType(t, &AccountNotFoundError{}, err, "balanceOf(alice) should return an AccountNotFoundError")
 }
 
 func TestBalanceOfAccountExists(t *testing.T) {
@@ -20,11 +18,8 @@ func TestBalanceOfAccountExists(t *testing.T) {
 	accounts.deposit("alice", 100)
 
 	balance, err := accounts.balanceOf("alice")
-	if err != nil {
-		t.Errorf("balanceOf(alice) returned error: %v", err)
-	} else if balance != 100 {
-		t.Errorf("balanceOf(alice) = %d, expected 100", balance)
-	}
+	assert.NoError(t, err, "balanceOf(alice) should not return an error")
+	assert.Equal(t, uint64(100), balance, "balanceOf(alice) should return 100")
 }
 
 func TestDepositNewAccount(t *testing.T) {
@@ -32,15 +27,11 @@ func TestDepositNewAccount(t *testing.T) {
 
 	// Test deposit with an empty account.
 	err := accounts.deposit("alice", 100)
-	if err != nil {
-		t.Errorf("deposit(alice, 100) returned error: %v", err)
-	}
+	assert.NoError(t, err, "deposit(alice, 100) should not return an error")
+
 	balance, err := accounts.balanceOf("alice")
-	if err != nil {
-		t.Errorf("balanceOf(alice) returned error: %v", err)
-	} else if balance != 100 {
-		t.Errorf("balanceOf(alice) = %d, expected 100", balance)
-	}
+	assert.NoError(t, err, "balanceOf(alice) should not return an error")
+	assert.Equal(t, uint64(100), balance, "balanceOf(alice) should return 100")
 }
 
 func TestDepositExistingAccount(t *testing.T) {
@@ -48,70 +39,49 @@ func TestDepositExistingAccount(t *testing.T) {
 
 	// Test deposit with an existing non-zero balance.
 	err := accounts.deposit("alice", 100)
-	if err != nil {
-		t.Errorf("deposit(alice, 100) returned error: %v", err)
-	}
+	assert.NoError(t, err, "deposit(alice, 100) should not return an error")
 	err = accounts.deposit("alice", 50)
-	if err != nil {
-		t.Errorf("deposit(alice, 50) returned error: %v", err)
-	}
+	assert.NoError(t, err, "deposit(alice, 50) should not return an error")
+
 	balance, err := accounts.balanceOf("alice")
-	if err != nil {
-		t.Errorf("balanceOf(alice) returned error: %v", err)
-	} else if balance != 150 {
-		t.Errorf("balanceOf(alice) = %d, expected 150", balance)
-	}
+	assert.NoError(t, err, "balanceOf(alice) should not return an error")
+	assert.Equal(t, uint64(150), balance, "balanceOf(alice) should return 150")
 }
 
 func TestWithdrawAccountNotFound(t *testing.T) {
 	accounts := newAccounts()
 
 	err := accounts.withdraw("alice", 50)
-	if err == nil {
-		t.Errorf("withdraw(alice, 50) returned nil error, expected AccountNotFoundError")
-	} else if _, ok := err.(*AccountNotFoundError); !ok {
-		t.Errorf("withdraw(alice, 50) returned %v, expected AccountNotFoundError", err)
-	}
+	assert.Error(t, err, "withdraw(alice, 50) should return an error")
+	assert.IsType(t, &AccountNotFoundError{}, err, "withdraw(alice, 50) should return an AccountNotFoundError")
 }
 
-func TestWithdrawUnderFunded(t *testing.T) {
-	accounts := newAccounts()
-	accounts.deposit("alice", 10)
-
-	// Test withdraw with an empty account.
-	err := accounts.withdraw("alice", 50)
-	if err == nil {
-		t.Errorf("withdraw(alice, 50) returned nil error, expected UnderFunded error")
-	} else if _, ok := err.(*AccountUnderFundedError); !ok {
-		t.Errorf("withdraw(alice, 50) returned %v, expected UnderFundedError", err)
-	}
-}
-
-func TestWithdrawSufficientBalance(t *testing.T) {
+func TestWithdrawInsufficientFunds(t *testing.T) {
 	accounts := newAccounts()
 	accounts.deposit("alice", 100)
 
-	err := accounts.withdraw("alice", 20)
-	if err != nil {
-		t.Errorf("withdraw(alice, 50) returned error: %v", err)
-	}
+	err := accounts.withdraw("alice", 150)
+	assert.Error(t, err, "withdraw(alice, 150) should return an error")
+	assert.IsType(t, &AccountUnderFundedError{}, err, "withdraw(alice, 150) should return an InsufficientFundsError")
+}
+
+func TestWithdrawSufficientFunds(t *testing.T) {
+	accounts := newAccounts()
+	accounts.deposit("alice", 100)
+
+	err := accounts.withdraw("alice", 50)
+	assert.NoError(t, err, "withdraw(alice, 50) should not return an error")
+
 	balance, err := accounts.balanceOf("alice")
-	if err != nil {
-		t.Errorf("balanceOf(alice) returned error: %v", err)
-	} else if balance != 80 {
-		t.Errorf("balanceOf(alice) = %d, expected 80", balance)
-	}
+	assert.NoError(t, err, "balanceOf(alice) should not return an error")
+	assert.Equal(t, uint64(50), balance, "balanceOf(alice) should return 50")
 }
 
 func TestSendWithSenderNotFound(t *testing.T) {
 	accounts := newAccounts()
 
 	err := accounts.send("alice", "bob", 50)
-	if err == nil {
-		t.Errorf("send(alice, bob, 50) returned nil error, expected AccountNotFoundError")
-	} else if _, ok := err.(*AccountNotFoundError); !ok {
-		t.Errorf("send(alice, bob, 50) returned %v, expected AccountNotFoundError", err)
-	}
+	assert.IsType(t, &AccountNotFoundError{}, err, "send(alice, bob, 50) should return an AccountNotFoundError")
 }
 
 func TestSendWithSenderUnderFunded(t *testing.T) {
@@ -119,11 +89,7 @@ func TestSendWithSenderUnderFunded(t *testing.T) {
 	accounts.deposit("alice", 25)
 
 	err := accounts.send("alice", "bob", 50)
-	if err == nil {
-		t.Errorf("send(alice, bob, 50) returned nil error, expected AccountUnderFundedError")
-	} else if _, ok := err.(*AccountUnderFundedError); !ok {
-		t.Errorf("send(alice, bob, 50) returned %v, expected AccountUnderFundedError", err)
-	}
+	assert.IsType(t, &AccountUnderFundedError{}, err, "send(alice, bob, 50) should return an AccountUnderFundedError")
 }
 
 func TestSendWSuccess(t *testing.T) {
@@ -132,21 +98,11 @@ func TestSendWSuccess(t *testing.T) {
 	accounts.deposit("bob", 10)
 
 	err := accounts.send("alice", "bob", 30)
-	if err != nil {
-		t.Errorf("send(alice, bob, 50) returned error: %v", err)
-	}
+	assert.NoError(t, err, "send(alice, bob, 30) should not return an error")
 
-	balance, err := accounts.balanceOf("alice")
-	if err != nil {
-		t.Errorf("balanceOf(alice) returned error: %v", err)
-	} else if balance != 70 {
-		t.Errorf("balanceOf(alice) = %d, expected 70", balance)
-	}
+	balance, _ := accounts.balanceOf("alice")
+	assert.Equal(t, uint64(70), balance, "balanceOf(alice) should return 70")
 
-	balance, err = accounts.balanceOf("bob")
-	if err != nil {
-		t.Errorf("balanceOf(bob) returned error: %v", err)
-	} else if balance != 40 {
-		t.Errorf("balanceOf(bob) = %d, expected 40", balance)
-	}
+	balance, _ = accounts.balanceOf("bob")
+	assert.Equal(t, uint64(40), balance, "balanceOf(bob) should return 40")
 }
