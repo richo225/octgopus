@@ -15,5 +15,10 @@ func main() {
 	orderbook.addOrder(250, buyOrder)
 	orderbook.addOrder(200, sellOrder)
 
-	pretty.Print(orderbook)
+	pair := newTradingPair("ETH", "GBP")
+	engine := newMatchingEngine()
+	engine.addNewMarket(pair)
+	engine.orderbooks[pair] = *orderbook
+
+	pretty.Print(engine)
 }
