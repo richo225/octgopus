@@ -45,6 +45,30 @@ func (book *Orderbook) placeLimitOrder(price uint64, order *Order) {
 	}
 }
 
+func (book *Orderbook) placeMarketOrder(order *Order) {
+	// check which side order is
+	if order.side == Bid {
+		// get all the sorted asks/bids of opposite side
+		// iterate through each limit (market order so start with smallest price)
+		for _, limit := range book.Asks() {
+			// attempt to match the order to the limit
+			limit.matchOrder(order)
+			// if the order is filled, break
+			if order.size == 0 {
+				break
+			}
+
+		}
+	} else {
+		for _, limit := range book.Bids() {
+			limit.matchOrder(order)
+			if order.size == 0 {
+				break
+			}
+		}
+	}
+}
+
 func (book *Orderbook) Asks() []*Limit {
 	sort.Slice(book.asks, func(i, j int) bool {
 		return book.asks[i].price < book.asks[j].price
