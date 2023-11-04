@@ -53,6 +53,8 @@ func (limit *Limit) matchOrder(order *Order) []Match {
 		// add the match to the list of matches
 		matches = append(matches, match)
 
+		limit.totalVolume -= match.sizeFilled
+
 		// remove the limit order if it is filled
 		if limitOrder.size == 0 {
 			limit.removeOrder(limitOrder)

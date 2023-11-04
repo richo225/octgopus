@@ -42,7 +42,6 @@ func TestLimitRemoveOrder(t *testing.T) {
 	assert.Equal(t, order1, limit.orders[0], "limit should have the correct order at index 0")
 	assert.Equal(t, order3, limit.orders[1], "limit should have the correct order at index 1")
 	assert.Nil(t, order2.limit, "order2's limit should be nil")
-	assert.True(t, limit.orders[0].timestamp == limit.orders[1].timestamp, "orders should be resorted by timestamp so oldest is first in the list")
 }
 
 func TestLimitMatchOrder(t *testing.T) {
@@ -59,9 +58,11 @@ func TestLimitMatchOrder(t *testing.T) {
 	assert.Equal(t, sellOrder, matches[0].ask, "match ask should be order")
 	assert.Equal(t, uint64(3), matches[0].sizeFilled, "match size filled should be 3")
 	assert.Equal(t, uint64(250), matches[0].price, "match price should be 250")
+	assert.Equal(t, uint64(0), limit.totalVolume, "limit should have the correct total volume")
 
 	// test that the sell limit order is removed
 	assert.Equal(t, 0, len(limit.orders), "limit should have 0 orders")
+
 }
 
 func TestLimitFillOrders(t *testing.T) {

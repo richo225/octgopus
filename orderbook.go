@@ -90,9 +90,9 @@ func (book *Orderbook) placeLimitOrder(price uint64, order *Order) {
 		} else {
 			// if doesn't exist, create a new limit with the order
 			newLimit := newLimit(price)
-			newLimit.addOrder(order)
 			book.bidLimits[price] = newLimit
 			book.bids = append(book.bids, newLimit)
+			newLimit.addOrder(order)
 		}
 	} else {
 		limit, ok := book.askLimits[price]
@@ -100,9 +100,9 @@ func (book *Orderbook) placeLimitOrder(price uint64, order *Order) {
 			limit.addOrder(order)
 		} else {
 			newLimit := newLimit(price)
-			newLimit.addOrder(order)
 			book.askLimits[price] = newLimit
 			book.asks = append(book.asks, newLimit)
+			newLimit.addOrder(order)
 		}
 	}
 }
