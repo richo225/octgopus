@@ -1,11 +1,11 @@
 package main
 
 type OrderbookNotFoundError struct {
-	message string
+	pair TradingPair
 }
 
 func (e *OrderbookNotFoundError) Error() string {
-	return "MarketNotfound : " + e.message
+	return "MarketNotfound : " + e.pair.toString()
 }
 
 type TradingPair struct {
@@ -38,14 +38,39 @@ func (engine *MatchingEngine) addNewMarket(pair TradingPair) {
 	engine.orderbooks[pair] = *newOrderBook()
 }
 
+func (engine *MatchingEngine) placeMarketOrder(pair TradingPair, price uint64, order *Order) ([]Match, error) {
+	orderbook, err := engine.getOrderBook(pair)
+
+	if err != nil {
+		return nil, err
+	}
+
+	matches, err := orderbook.placeMarketOrder(order)
+	if err != nil {
+		return nil, err
+	}
+
+	return matches, nil
+}
+
 func (engine *MatchingEngine) placeLimitOrder(pair TradingPair, price uint64, order *Order) error {
+	orderbook, err := engine.getOrderBook(pair)
+
+	if err != nil {
+		return err
+	}
+
+	orderbook.placeLimitOrder(price, order)
+	return nil
+}
+
+func (engine *MatchingEngine) getOrderBook(pair TradingPair) (*Orderbook, error) {
 	// check in orderbooks for the trading pair
 	orderbook, ok := engine.orderbooks[pair]
 	if !ok {
 		// if market does not exist, return error
-		return &OrderbookNotFoundError{pair.toString()}
+		return nil, &OrderbookNotFoundError{pair}
 	}
-	// if market already exists, add order to orderbook
-	orderbook.addOrder(price, order)
-	return nil
+
+	return &orderbook, nil
 }
