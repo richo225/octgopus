@@ -1,5 +1,7 @@
 package main
 
+import "sort"
+
 type Match struct {
 	ask        *Order
 	bid        *Order
@@ -24,6 +26,21 @@ func (limit *Limit) addOrder(order *Order) {
 	order.limit = limit
 	limit.orders = append(limit.orders, order)
 	limit.totalVolume += order.size
+}
+
+func (limit *Limit) removeOrder(order *Order) {
+	for i, o := range limit.orders {
+		if o == order {
+			limit.orders = append(limit.orders[:i], limit.orders[i+1:]...)
+			limit.totalVolume -= order.size
+			break
+		}
+	}
+	order.limit = nil
+	// resort the orders by timestamp
+	sort.Slice(limit.orders, func(i, j int) bool {
+		return limit.orders[i].timestamp < limit.orders[j].timestamp
+	})
 }
 
 func (limit *Limit) matchOrder(order *Order) []Match {
