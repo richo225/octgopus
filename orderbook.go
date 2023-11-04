@@ -123,6 +123,12 @@ func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 			// attempt to match the order to the limit
 			limitMatches := limit.matchOrder(order)
 			matches = append(matches, limitMatches...)
+
+			// if the limit is empty, remove it from the orderbook
+			if len(limit.orders) == 0 {
+				book.removeLimit(Ask, limit)
+			}
+
 			// if the order is filled, break
 			if order.size == 0 {
 				break
@@ -138,6 +144,12 @@ func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 		for _, limit := range book.Bids() {
 			limitMatches := limit.matchOrder(order)
 			matches = append(matches, limitMatches...)
+
+			// if the limit is empty, remove it from the orderbook
+			if len(limit.orders) == 0 {
+				book.removeLimit(Bid, limit)
+			}
+
 			if order.size == 0 {
 				break
 			}
@@ -145,4 +157,36 @@ func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 	}
 
 	return matches, nil
+}
+
+func (book *Orderbook) removeLimit(side Side, limit *Limit) {
+	if side == Bid {
+		// remove the limit from the orderbook bidLimits
+		delete(book.bidLimits, limit.price)
+		// remove the limit from the orderbook bids
+		for i, l := range book.bids {
+			if l == limit {
+				book.bids = append(book.bids[:i], book.bids[i+1:]...)
+				break
+			}
+		}
+		// resort the bids
+		sort.Slice(book.bids, func(i, j int) bool {
+			return book.bids[i].price > book.bids[j].price
+		})
+	} else {
+		// remove the limit from the orderbook askLimits
+		delete(book.askLimits, limit.price)
+		// remove the limit from the orderbook asks
+		for i, l := range book.asks {
+			if l == limit {
+				book.asks = append(book.asks[:i], book.asks[i+1:]...)
+				break
+			}
+		}
+		// resort the asks
+		sort.Slice(book.asks, func(i, j int) bool {
+			return book.asks[i].price < book.asks[j].price
+		})
+	}
 }
