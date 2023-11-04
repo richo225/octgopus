@@ -47,7 +47,7 @@ func TestLimitRemoveOrder(t *testing.T) {
 
 func TestLimitMatchOrder(t *testing.T) {
 	limit := newLimit(250)
-	sellOrder := newOrder(Ask, 5)
+	sellOrder := newOrder(Ask, 3)
 	buyOrder := newOrder(Bid, 3)
 
 	limit.addOrder(sellOrder)
@@ -59,6 +59,9 @@ func TestLimitMatchOrder(t *testing.T) {
 	assert.Equal(t, sellOrder, matches[0].ask, "match ask should be order")
 	assert.Equal(t, uint64(3), matches[0].sizeFilled, "match size filled should be 3")
 	assert.Equal(t, uint64(250), matches[0].price, "match price should be 250")
+
+	// test that the sell limit order is removed
+	assert.Equal(t, 0, len(limit.orders), "limit should have 0 orders")
 }
 
 func TestLimitFillOrders(t *testing.T) {

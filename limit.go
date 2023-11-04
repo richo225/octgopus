@@ -53,6 +53,11 @@ func (limit *Limit) matchOrder(order *Order) []Match {
 		// add the match to the list of matches
 		matches = append(matches, match)
 
+		// remove the limit order if it is filled
+		if limitOrder.size == 0 {
+			limit.removeOrder(limitOrder)
+		}
+
 		// if the order is filled, break
 		if order.size == 0 {
 			break
