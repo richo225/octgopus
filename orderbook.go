@@ -159,6 +159,20 @@ func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 	return matches, nil
 }
 
+func (book *Orderbook) cancelOrder(order *Order) {
+	limit := order.limit
+	side := order.side
+	if limit == nil {
+		return
+	}
+
+	limit.removeOrder(order)
+
+	if len(limit.orders) == 0 {
+		book.removeLimit(side, limit)
+	}
+}
+
 func (book *Orderbook) removeLimit(side Side, limit *Limit) {
 	if side == Bid {
 		// remove the limit from the orderbook bidLimits

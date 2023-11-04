@@ -270,3 +270,22 @@ func TestOrderBookPlaceMarketSellOrderInsufficientVolume(t *testing.T) {
 	assert.Equal(t, &InsufficientVolumeError{2, 3}, err, "placeMarketOrder should return InsufficientVolumeError")
 	assert.Equal(t, uint64(3), sellOrder.size, "sell order size should be 3")
 }
+
+func TestOrderbookCancelOrder(t *testing.T) {
+	orderBook := newOrderBook()
+
+	order1 := newOrder(Bid, 10)
+	order2 := newOrder(Bid, 20)
+	order3 := newOrder(Bid, 30)
+
+	orderBook.placeLimitOrder(100, order1)
+	orderBook.placeLimitOrder(100, order2)
+	orderBook.placeLimitOrder(200, order3)
+
+	orderBook.cancelOrder(order2)
+
+	assert.Equal(t, 2, len(orderBook.bids), "order book should have 2 limits in bids")
+	assert.Equal(t, uint64(40), orderBook.totalBidVolume(), "order book should have the correct total bid volume")
+	assert.Equal(t, 1, len(orderBook.bidLimits[100].orders), "limit should have 1 order")
+	assert.Equal(t, uint64(10), orderBook.bidLimits[100].orders[0].size, "limit should have the correct size for order1")
+}
