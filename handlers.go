@@ -13,9 +13,27 @@ func sayHello(c echo.Context) error {
 }
 
 // Orderbooks
+func (platform *TradingPlatform) handleCreateOrderbook(c echo.Context) error {
+	base := c.QueryParam("base")
+	quote := c.QueryParam("quote")
+	pair := newTradingPair(base, quote)
+
+	orderbook := platform.addNewMarket(pair)
+
+	return c.JSON(http.StatusOK, &orderbook)
+}
+
 func (platform *TradingPlatform) handleGetOrderbooks(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
-	return c.JSON(http.StatusOK, "Orderbooks")
+	base := c.QueryParam("base")
+	quote := c.QueryParam("quote")
+	pair := newTradingPair(base, quote)
+
+	orderbook, err := platform.getOrderBook(pair)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, &orderbook)
 }
 
 // Orders
@@ -35,6 +53,7 @@ func (platform *TradingPlatform) handleCreateAccount(c echo.Context) error {
 	return c.String(http.StatusOK, "Account created")
 }
 
+// Accounts
 func (platform *TradingPlatform) handleGetAccountBalance(c echo.Context) error {
 	signer := c.Param("signer")
 	balance, err := platform.accounts.balanceOf(signer)

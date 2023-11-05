@@ -43,8 +43,11 @@ func newTradingPlatform() *TradingPlatform {
 	}
 }
 
-func (platform *TradingPlatform) addNewMarket(pair TradingPair) {
-	platform.orderbooks[pair] = *newOrderBook()
+func (platform *TradingPlatform) addNewMarket(pair TradingPair) *Orderbook {
+	ob := newOrderBook()
+	platform.orderbooks[pair] = *ob
+
+	return ob
 }
 
 func (platform *TradingPlatform) placeOrder(pair TradingPair, price uint64, side Side, size uint64, orderType OrderType) ([]Match, error) {
