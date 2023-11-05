@@ -37,9 +37,9 @@ func TestDepositExistingAccount(t *testing.T) {
 
 	tx, err := accounts.deposit("alice", 100)
 	assert.NoError(t, err, "deposit(alice) should not return an error")
-	assert.Equal(t, Deposit, tx.action, "deposit(alice) should return a Deposit Tx")
-	assert.Equal(t, "alice", tx.signer, "deposit(alice) should return a Tx with alice as signer")
-	assert.Equal(t, uint64(100), tx.amount, "deposit(alice) should return a Tx with 100 as amount")
+	assert.Equal(t, Deposit, tx.Action, "deposit(alice) should return a Deposit Tx")
+	assert.Equal(t, "alice", tx.Signer, "deposit(alice) should return a Tx with alice as signer")
+	assert.Equal(t, uint64(100), tx.Amount, "deposit(alice) should return a Tx with 100 as amount")
 
 	balance, _ := accounts.balanceOf("alice")
 	assert.Equal(t, uint64(100), balance, "balanceOf(alice) should return 100")
@@ -69,9 +69,9 @@ func TestWithdrawSufficientFunds(t *testing.T) {
 
 	tx, err := accounts.withdraw("alice", 50)
 	assert.NoError(t, err, "withdraw(alice, 50) should not return an error")
-	assert.Equal(t, Withdraw, tx.action, "withdraw(alice, 50) should return a Withdraw Tx")
-	assert.Equal(t, "alice", tx.signer, "withdraw(alice, 50) should return a Tx with alice as signer")
-	assert.Equal(t, uint64(50), tx.amount, "withdraw(alice, 50) should return a Tx with 50 as amount")
+	assert.Equal(t, Withdraw, tx.Action, "withdraw(alice, 50) should return a Withdraw Tx")
+	assert.Equal(t, "alice", tx.Signer, "withdraw(alice, 50) should return a Tx with alice as signer")
+	assert.Equal(t, uint64(50), tx.Amount, "withdraw(alice, 50) should return a Tx with 50 as amount")
 
 	balance, err := accounts.balanceOf("alice")
 	assert.NoError(t, err, "balanceOf(alice) should not return an error")
@@ -104,13 +104,13 @@ func TestSendWSuccess(t *testing.T) {
 
 	tx, err := accounts.send("alice", "bob", 30)
 	assert.NoError(t, err, "send(alice, bob, 30) should not return an error")
-	assert.Equal(t, Withdraw, tx[0].action, "send(alice, bob, 30) should return a Withdraw Tx")
-	assert.Equal(t, "alice", tx[0].signer, "send(alice, bob, 30) should return a Tx with alice as signer")
-	assert.Equal(t, uint64(30), tx[0].amount, "send(alice, bob, 30) should return a Tx with 30 as amount")
+	assert.Equal(t, Withdraw, tx[0].Action, "send(alice, bob, 30) should return a Withdraw Tx")
+	assert.Equal(t, "alice", tx[0].Signer, "send(alice, bob, 30) should return a Tx with alice as signer")
+	assert.Equal(t, uint64(30), tx[0].Amount, "send(alice, bob, 30) should return a Tx with 30 as amount")
 
-	assert.Equal(t, Deposit, tx[1].action, "send(alice, bob, 30) should return a Deposit Tx")
-	assert.Equal(t, "bob", tx[1].signer, "send(alice, bob, 30) should return a Tx with bob as signer")
-	assert.Equal(t, uint64(30), tx[1].amount, "send(alice, bob, 30) should return a Tx with 30 as amount")
+	assert.Equal(t, Deposit, tx[1].Action, "send(alice, bob, 30) should return a Deposit Tx")
+	assert.Equal(t, "bob", tx[1].Signer, "send(alice, bob, 30) should return a Tx with bob as signer")
+	assert.Equal(t, uint64(30), tx[1].Amount, "send(alice, bob, 30) should return a Tx with 30 as amount")
 
 	balance, _ := accounts.balanceOf("alice")
 	assert.Equal(t, uint64(70), balance, "balanceOf(alice) should return 70")

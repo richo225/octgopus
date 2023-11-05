@@ -32,9 +32,9 @@ const (
 )
 
 type Tx struct {
-	action TxAction
-	signer string
-	amount uint64
+	Action TxAction `json:"action"`
+	Signer string   `json:"signer"`
+	Amount uint64   `json:"amount"`
 }
 
 type Accounts struct {
@@ -77,9 +77,9 @@ func (a *Accounts) deposit(signer string, amount uint64) (*Tx, error) {
 	a.accounts[signer] = newBalance
 
 	return &Tx{
-		action: Deposit,
-		signer: signer,
-		amount: amount,
+		Action: Deposit,
+		Signer: signer,
+		Amount: amount,
 	}, nil
 }
 
@@ -95,9 +95,9 @@ func (a *Accounts) withdraw(signer string, amount uint64) (*Tx, error) {
 		a.accounts[signer] = newBalance
 
 		return &Tx{
-			action: Withdraw,
-			signer: signer,
-			amount: amount,
+			Action: Withdraw,
+			Signer: signer,
+			Amount: amount,
 		}, nil
 	}
 }
