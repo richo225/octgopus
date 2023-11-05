@@ -9,8 +9,8 @@ import (
 func TestNewOrderBook(t *testing.T) {
 	orderBook := newOrderBook()
 
-	assert.Empty(t, orderBook.asks, "order book should initialize with no asks")
-	assert.Empty(t, orderBook.bids, "order book should initialise with no bids")
+	assert.Empty(t, orderBook.Asks, "order book should initialize with no asks")
+	assert.Empty(t, orderBook.Bids, "order book should initialise with no bids")
 }
 
 func TestOrderBookAsks(t *testing.T) {
@@ -19,8 +19,8 @@ func TestOrderBookAsks(t *testing.T) {
 	limit2 := newLimit(8)
 	limit3 := newLimit(25)
 
-	orderbook.asks = []*Limit{limit1, limit2, limit3}
-	sortedAsks := orderbook.Asks()
+	orderbook.Asks = []*Limit{limit1, limit2, limit3}
+	sortedAsks := orderbook.getAsks()
 
 	assert.Equal(t, 3, len(sortedAsks), "Asks() should return 3 limits")
 	assert.Equal(t, []*Limit{limit2, limit1, limit3}, sortedAsks, "Asks() should return limits in ascending price")
@@ -32,8 +32,8 @@ func TestOrderBookBids(t *testing.T) {
 	limit2 := newLimit(8)
 	limit3 := newLimit(25)
 
-	orderbook.bids = []*Limit{limit1, limit2, limit3}
-	sortedBids := orderbook.Bids()
+	orderbook.Bids = []*Limit{limit1, limit2, limit3}
+	sortedBids := orderbook.getBids()
 
 	assert.Equal(t, 3, len(sortedBids), "Bids() should return 3 limits")
 	assert.Equal(t, []*Limit{limit3, limit1, limit2}, sortedBids, "Bids() should return limits in descending price")
@@ -81,15 +81,15 @@ func TestOrderBookPlaceLimitOrder(t *testing.T) {
 
 	assert.Equal(t, uint64(26), orderbook.totalBidVolume(), "order book should have the correct total bid volume")
 
-	assert.Equal(t, 2, len(orderbook.bids), "order book should have 2 limits in bids")
+	assert.Equal(t, 2, len(orderbook.Bids), "order book should have 2 limits in bids")
 	assert.Equal(t, buyOrder1, orderbook.bidLimits[250].orders[0], "order book should have the correct buy order in bidLimits")
 	assert.Equal(t, buyOrder2, orderbook.bidLimits[250].orders[1], "order book should have the correct buy order in bidLimits")
 	assert.Equal(t, buyOrder3, orderbook.bidLimits[410].orders[0], "order book should have the correct buy order in bidLimits")
-	assert.Equal(t, buyOrder1, orderbook.bids[0].orders[0], "order book should have the correct buy order in bids")
+	assert.Equal(t, buyOrder1, orderbook.Bids[0].orders[0], "order book should have the correct buy order in bids")
 
-	assert.Equal(t, 1, len(orderbook.asks), "order book should have 1 limit in asks")
+	assert.Equal(t, 1, len(orderbook.Asks), "order book should have 1 limit in asks")
 	assert.Equal(t, sellOrder, orderbook.askLimits[120].orders[0], "order book should have the correct sell order in askLimits")
-	assert.Equal(t, sellOrder, orderbook.asks[0].orders[0], "order book should have the correct buy order in bids")
+	assert.Equal(t, sellOrder, orderbook.Asks[0].orders[0], "order book should have the correct buy order in bids")
 }
 
 func TestOrderBookPlaceMarketBuyOrder(t *testing.T) {
@@ -132,7 +132,7 @@ func TestOrderBookPlaceMarketBuyOrderMultiMatch(t *testing.T) {
 	assert.Equal(t, uint64(0), buyOrder.size, "buy order size should be 0")
 	assert.Equal(t, uint64(5), sellOrder1.size, "sell order size should be 5")
 	assert.Equal(t, uint64(2), sellOrder2.size, "sell order size should be 2")
-	assert.Equal(t, 1, len(orderbook.asks), "order book should still have 1 limit left")
+	assert.Equal(t, 1, len(orderbook.Asks), "order book should still have 1 limit left")
 }
 
 func TestOrderBookPlaceMarketBuyOrderMultiPriceLimitMatch(t *testing.T) {
@@ -163,10 +163,10 @@ func TestOrderBookPlaceMarketBuyOrderMultiPriceLimitMatch(t *testing.T) {
 	assert.Equal(t, uint64(7), sellOrder1.size, "sell order size should be 7")
 	assert.Equal(t, uint64(0), sellOrder2.size, "sell order size should be 8")
 
-	assert.Equal(t, 1, len(orderbook.asks), "order book should have 1 limit left")
-	assert.Equal(t, uint64(250), orderbook.asks[0].price, "order book should have the correct non-empty limit left")
+	assert.Equal(t, 1, len(orderbook.Asks), "order book should have 1 limit left")
+	assert.Equal(t, uint64(250), orderbook.Asks[0].Price, "order book should have the correct non-empty limit left")
 	assert.Equal(t, 1, len(orderbook.askLimits), "order book should have 1 limit left")
-	assert.Equal(t, uint64(250), orderbook.askLimits[250].price, "order book should have the correct non-empty limit left")
+	assert.Equal(t, uint64(250), orderbook.askLimits[250].Price, "order book should have the correct non-empty limit left")
 }
 
 func TestOrderBookPlaceMarketBuyOrderInsufficientVolume(t *testing.T) {
@@ -222,7 +222,7 @@ func TestOrderBookPlaceMarketSellOrderMultiMatch(t *testing.T) {
 	assert.Equal(t, uint64(0), sellOrder.size, "sell order size should be 0")
 	assert.Equal(t, uint64(5), buyOrder1.size, "buy order size should be 5")
 	assert.Equal(t, uint64(2), buyOrder2.size, "sell order size should be 2")
-	assert.Equal(t, 1, len(orderbook.bids), "order book should still have 1 limit left")
+	assert.Equal(t, 1, len(orderbook.Bids), "order book should still have 1 limit left")
 }
 
 func TestOrderBookPlaceMarketSellOrderMultiPriceLimitMatch(t *testing.T) {
@@ -253,10 +253,10 @@ func TestOrderBookPlaceMarketSellOrderMultiPriceLimitMatch(t *testing.T) {
 	assert.Equal(t, uint64(7), buyOrder1.size, "buy order size should be 7")
 	assert.Equal(t, uint64(0), buyOrder2.size, "buy order size should be 0")
 
-	assert.Equal(t, 1, len(orderbook.bids), "order book should have 1 limit left")
-	assert.Equal(t, uint64(240), orderbook.bids[0].price, "order book should have the correct non-empty limit left")
+	assert.Equal(t, 1, len(orderbook.Bids), "order book should have 1 limit left")
+	assert.Equal(t, uint64(240), orderbook.Bids[0].Price, "order book should have the correct non-empty limit left")
 	assert.Equal(t, 1, len(orderbook.bidLimits), "order book should have 1 limit left")
-	assert.Equal(t, uint64(240), orderbook.bidLimits[240].price, "order book should have the correct non-empty limit left")
+	assert.Equal(t, uint64(240), orderbook.bidLimits[240].Price, "order book should have the correct non-empty limit left")
 }
 
 func TestOrderBookPlaceMarketSellOrderInsufficientVolume(t *testing.T) {
@@ -284,7 +284,7 @@ func TestOrderbookCancelOrder(t *testing.T) {
 
 	orderBook.cancelOrder(order2)
 
-	assert.Equal(t, 2, len(orderBook.bids), "order book should have 2 limits in bids")
+	assert.Equal(t, 2, len(orderBook.Bids), "order book should have 2 limits in bids")
 	assert.Equal(t, uint64(40), orderBook.totalBidVolume(), "order book should have the correct total bid volume")
 	assert.Equal(t, 1, len(orderBook.bidLimits[100].orders), "limit should have 1 order")
 	assert.Equal(t, uint64(10), orderBook.bidLimits[100].orders[0].size, "limit should have the correct size for order1")

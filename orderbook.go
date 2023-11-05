@@ -15,57 +15,58 @@ func (e *InsufficientVolumeError) Error() string {
 }
 
 type Orderbook struct {
-	asks      []*Limit
-	bids      []*Limit
-	askLimits map[uint64]*Limit
-	bidLimits map[uint64]*Limit
+	Market    *TradingPair      `json:"market"`
+	Asks      []*Limit          `json:"asks"`
+	Bids      []*Limit          `json:"bids"`
+	askLimits map[uint64]*Limit `json:"-"`
+	bidLimits map[uint64]*Limit `json:"-"`
 }
 
 func newOrderBook() *Orderbook {
 	return &Orderbook{
-		asks:      []*Limit{},
-		bids:      []*Limit{},
+		Asks:      []*Limit{},
+		Bids:      []*Limit{},
 		askLimits: make(map[uint64]*Limit),
 		bidLimits: make(map[uint64]*Limit),
 	}
 }
 
-func (book *Orderbook) Asks() []*Limit {
-	sort.Slice(book.asks, func(i, j int) bool {
-		return book.asks[i].price < book.asks[j].price
+func (book *Orderbook) getAsks() []*Limit {
+	sort.Slice(book.Asks, func(i, j int) bool {
+		return book.Asks[i].Price < book.Asks[j].Price
 	})
 
-	return book.asks
+	return book.Asks
 }
 
-func (book *Orderbook) Bids() []*Limit {
-	sort.Slice(book.bids, func(i, j int) bool {
-		return book.bids[i].price > book.bids[j].price
+func (book *Orderbook) getBids() []*Limit {
+	sort.Slice(book.Bids, func(i, j int) bool {
+		return book.Bids[i].Price > book.Bids[j].Price
 	})
 
-	return book.bids
+	return book.Bids
 }
 
 func (book *Orderbook) bestAsk() *Limit {
-	if len(book.asks) == 0 {
+	if len(book.Asks) == 0 {
 		return nil
 	}
 
-	return book.Asks()[0]
+	return book.getAsks()[0]
 }
 
 func (book *Orderbook) bestBid() *Limit {
-	if len(book.bids) == 0 {
+	if len(book.Bids) == 0 {
 		return nil
 	}
 
-	return book.Bids()[0]
+	return book.getBids()[0]
 }
 
 func (book *Orderbook) totalBidVolume() uint64 {
 	var total uint64
-	for _, limit := range book.bids {
-		total += limit.totalVolume
+	for _, limit := range book.Bids {
+		total += limit.TotalVolume
 	}
 
 	return total
@@ -73,8 +74,8 @@ func (book *Orderbook) totalBidVolume() uint64 {
 
 func (book *Orderbook) totalAskVolume() uint64 {
 	var total uint64
-	for _, limit := range book.asks {
-		total += limit.totalVolume
+	for _, limit := range book.Asks {
+		total += limit.TotalVolume
 	}
 
 	return total
@@ -91,7 +92,7 @@ func (book *Orderbook) placeLimitOrder(price uint64, order *Order) {
 			// if doesn't exist, create a new limit with the order
 			newLimit := newLimit(price)
 			book.bidLimits[price] = newLimit
-			book.bids = append(book.bids, newLimit)
+			book.Bids = append(book.Bids, newLimit)
 			newLimit.addOrder(order)
 		}
 	} else {
@@ -101,7 +102,7 @@ func (book *Orderbook) placeLimitOrder(price uint64, order *Order) {
 		} else {
 			newLimit := newLimit(price)
 			book.askLimits[price] = newLimit
-			book.asks = append(book.asks, newLimit)
+			book.Asks = append(book.Asks, newLimit)
 			newLimit.addOrder(order)
 		}
 	}
@@ -119,7 +120,7 @@ func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 
 		// get all the sorted asks/bids of opposite side
 		// iterate through each limit (market order so start with smallest price)
-		for _, limit := range book.Asks() {
+		for _, limit := range book.getAsks() {
 			// attempt to match the order to the limit
 			limitMatches := limit.matchOrder(order)
 			matches = append(matches, limitMatches...)
@@ -141,7 +142,7 @@ func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 			return nil, &InsufficientVolumeError{book.totalBidVolume(), order.size}
 		}
 
-		for _, limit := range book.Bids() {
+		for _, limit := range book.getBids() {
 			limitMatches := limit.matchOrder(order)
 			matches = append(matches, limitMatches...)
 
@@ -176,31 +177,31 @@ func (book *Orderbook) cancelOrder(order *Order) {
 func (book *Orderbook) removeLimit(side Side, limit *Limit) {
 	if side == Bid {
 		// remove the limit from the orderbook bidLimits
-		delete(book.bidLimits, limit.price)
+		delete(book.bidLimits, limit.Price)
 		// remove the limit from the orderbook bids
-		for i, l := range book.bids {
+		for i, l := range book.Bids {
 			if l == limit {
-				book.bids = append(book.bids[:i], book.bids[i+1:]...)
+				book.Bids = append(book.Bids[:i], book.Bids[i+1:]...)
 				break
 			}
 		}
 		// resort the bids
-		sort.Slice(book.bids, func(i, j int) bool {
-			return book.bids[i].price > book.bids[j].price
+		sort.Slice(book.Bids, func(i, j int) bool {
+			return book.Bids[i].Price > book.Bids[j].Price
 		})
 	} else {
 		// remove the limit from the orderbook askLimits
-		delete(book.askLimits, limit.price)
+		delete(book.askLimits, limit.Price)
 		// remove the limit from the orderbook asks
-		for i, l := range book.asks {
+		for i, l := range book.Asks {
 			if l == limit {
-				book.asks = append(book.asks[:i], book.asks[i+1:]...)
+				book.Asks = append(book.Asks[:i], book.Asks[i+1:]...)
 				break
 			}
 		}
 		// resort the asks
-		sort.Slice(book.asks, func(i, j int) bool {
-			return book.asks[i].price < book.asks[j].price
+		sort.Slice(book.Asks, func(i, j int) bool {
+			return book.Asks[i].Price < book.Asks[j].Price
 		})
 	}
 }
