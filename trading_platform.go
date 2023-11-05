@@ -32,11 +32,13 @@ func (pair *TradingPair) toString() string {
 }
 
 type TradingPlatform struct {
+	accounts   *Accounts
 	orderbooks map[TradingPair]Orderbook
 }
 
 func newTradingPlatform() *TradingPlatform {
 	return &TradingPlatform{
+		accounts:   newAccounts(),
 		orderbooks: make(map[TradingPair]Orderbook),
 	}
 }
