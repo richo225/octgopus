@@ -10,14 +10,14 @@ type Match struct {
 }
 
 type Limit struct {
-	price       uint64
-	orders      []*Order
-	totalVolume uint64
+	Price       uint64   `json:"price"`
+	TotalVolume uint64   `json:"total_volume"`
+	orders      []*Order `json:"-"`
 }
 
 func newLimit(price uint64) *Limit {
 	return &Limit{
-		price:  price,
+		Price:  price,
 		orders: []*Order{},
 	}
 }
@@ -25,14 +25,14 @@ func newLimit(price uint64) *Limit {
 func (limit *Limit) addOrder(order *Order) {
 	order.limit = limit
 	limit.orders = append(limit.orders, order)
-	limit.totalVolume += order.size
+	limit.TotalVolume += order.size
 }
 
 func (limit *Limit) removeOrder(order *Order) {
 	for i, o := range limit.orders {
 		if o == order {
 			limit.orders = append(limit.orders[:i], limit.orders[i+1:]...)
-			limit.totalVolume -= order.size
+			limit.TotalVolume -= order.size
 			break
 		}
 	}
@@ -53,7 +53,7 @@ func (limit *Limit) matchOrder(order *Order) []Match {
 		// add the match to the list of matches
 		matches = append(matches, match)
 
-		limit.totalVolume -= match.sizeFilled
+		limit.TotalVolume -= match.sizeFilled
 
 		// remove the limit order if it is filled
 		if limitOrder.size == 0 {
@@ -100,6 +100,6 @@ func (limit *Limit) fillOrders(limitOrder, order *Order) Match {
 		ask:        ask,
 		bid:        bid,
 		sizeFilled: sizeFilled,
-		price:      limit.price,
+		price:      limit.Price,
 	}
 }
