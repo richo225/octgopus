@@ -16,36 +16,37 @@ const (
 )
 
 type TradingPair struct {
-	base  string // BTC
-	quote string // USD
+	Base  string `json:"base"`
+	Quote string `json:"quote"`
 }
 
 func newTradingPair(base string, quote string) TradingPair {
 	return TradingPair{
-		base:  base,
-		quote: quote,
+		Base:  base,
+		Quote: quote,
 	}
 }
 
 func (pair *TradingPair) toString() string {
-	return pair.base + "/" + pair.quote
+	return pair.Base + "/" + pair.Quote
 }
 
 type TradingPlatform struct {
 	accounts   *Accounts
-	orderbooks map[TradingPair]Orderbook
+	Orderbooks map[TradingPair]Orderbook `json:"orderbooks"`
 }
 
 func newTradingPlatform() *TradingPlatform {
 	return &TradingPlatform{
 		accounts:   newAccounts(),
-		orderbooks: make(map[TradingPair]Orderbook),
+		Orderbooks: make(map[TradingPair]Orderbook),
 	}
 }
 
 func (platform *TradingPlatform) addNewMarket(pair TradingPair) *Orderbook {
 	ob := newOrderBook()
-	platform.orderbooks[pair] = *ob
+	ob.Market = &pair
+	platform.Orderbooks[pair] = *ob
 
 	return ob
 }
@@ -89,7 +90,7 @@ func (platform *TradingPlatform) placeLimitOrder(pair TradingPair, price uint64,
 
 func (platform *TradingPlatform) getOrderBook(pair TradingPair) (*Orderbook, error) {
 	// check in orderbooks for the trading pair
-	orderbook, ok := platform.orderbooks[pair]
+	orderbook, ok := platform.Orderbooks[pair]
 	if !ok {
 		// if market does not exist, return error
 		return nil, &OrderbookNotFoundError{pair}

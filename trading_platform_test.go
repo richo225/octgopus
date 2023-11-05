@@ -9,14 +9,14 @@ import (
 func TestNewTradingPair(t *testing.T) {
 	tradingPair := newTradingPair("BTC", "USD")
 
-	assert.Equal(t, "BTC", tradingPair.base, "trading pair should have the correct base currency")
-	assert.Equal(t, "USD", tradingPair.quote, "trading pair should have the correct quote currency")
+	assert.Equal(t, "BTC", tradingPair.Base, "trading pair should have the correct base currency")
+	assert.Equal(t, "USD", tradingPair.Quote, "trading pair should have the correct quote currency")
 }
 
 func TestNewTradingPlatform(t *testing.T) {
 	tradingPlatform := newTradingPlatform()
 
-	assert.Empty(t, tradingPlatform.orderbooks, "matching tradingPlatform should initialise with empty orderbooks")
+	assert.Empty(t, tradingPlatform.Orderbooks, "matching tradingPlatform should initialise with empty orderbooks")
 }
 
 func TestTradingPlatformAddNewMarket(t *testing.T) {
@@ -26,8 +26,9 @@ func TestTradingPlatformAddNewMarket(t *testing.T) {
 	tradingPlatform.addNewMarket(pair)
 	tradingPlatform.addNewMarket(pair)
 
-	assert.Equal(t, 1, len(tradingPlatform.orderbooks), "tradingPlatform should have 1 order book")
-	assert.NotNil(t, tradingPlatform.orderbooks[pair], "tradingPlatform should have an order book for pair")
+	assert.Equal(t, 1, len(tradingPlatform.Orderbooks), "tradingPlatform should have 1 order book")
+	assert.NotNil(t, tradingPlatform.Orderbooks[pair], "tradingPlatform should have an order book for pair")
+	assert.Equal(t, &pair, tradingPlatform.Orderbooks[pair].Market, "orderbook should have the correct market")
 }
 
 func TestTradingPlatformGetOrderBook(t *testing.T) {
