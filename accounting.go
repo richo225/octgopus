@@ -1,19 +1,40 @@
 package main
 
 type AccountNotFoundError struct {
-	message string
+	signer string
 }
 
 func (e *AccountNotFoundError) Error() string {
-	return "AccountNotFound : " + e.message
+	return "AccountNotFound: " + e.signer
+}
+
+type AccountAlreadyExistsError struct {
+	signer string
+}
+
+func (e *AccountAlreadyExistsError) Error() string {
+	return "AccountAlreadyExists: " + e.signer
 }
 
 type AccountUnderFundedError struct {
-	message string
+	signer string
 }
 
 func (e *AccountUnderFundedError) Error() string {
-	return "AccountUnderFunded : " + e.message
+	return "AccountUnderFunded: " + e.signer
+}
+
+type TxAction string
+
+const (
+	Deposit  TxAction = "deposit"
+	Withdraw TxAction = "withdraw"
+)
+
+type Tx struct {
+	action TxAction
+	signer string
+	amount uint64
 }
 
 type Accounts struct {
@@ -27,6 +48,16 @@ func newAccounts() *Accounts {
 	}
 }
 
+func (a *Accounts) createAccount(signer string) error {
+	_, ok := a.accounts[signer]
+	if ok {
+		return &AccountAlreadyExistsError{signer}
+	} else {
+		a.accounts[signer] = 0
+		return nil
+	}
+}
+
 func (a *Accounts) balanceOf(signer string) (uint64, error) {
 	balance, ok := a.accounts[signer]
 	if ok {
@@ -36,44 +67,51 @@ func (a *Accounts) balanceOf(signer string) (uint64, error) {
 	}
 }
 
-// Either deposits the `amount` provided into the `signer` account or adds the amount to the existing account
-func (a *Accounts) deposit(signer string, amount uint64) error {
+func (a *Accounts) deposit(signer string, amount uint64) (*Tx, error) {
 	balance, err := a.balanceOf(signer)
 	if err != nil {
-		a.accounts[signer] = amount
-	} else {
-		newBalance := balance + amount
-		a.accounts[signer] = newBalance
+		return nil, err
 	}
 
-	return nil
+	newBalance := balance + amount
+	a.accounts[signer] = newBalance
+
+	return &Tx{
+		action: Deposit,
+		signer: signer,
+		amount: amount,
+	}, nil
 }
 
-func (a *Accounts) withdraw(signer string, amount uint64) error {
+func (a *Accounts) withdraw(signer string, amount uint64) (*Tx, error) {
 	balance, err := a.balanceOf(signer)
 	if err != nil {
-		return &AccountNotFoundError{"account not found"}
+		return nil, &AccountNotFoundError{signer}
 	} else {
 		if balance < amount {
-			return &AccountUnderFundedError{signer}
+			return nil, &AccountUnderFundedError{signer}
 		}
 		newBalance := balance - amount
 		a.accounts[signer] = newBalance
-	}
 
-	return nil
+		return &Tx{
+			action: Withdraw,
+			signer: signer,
+			amount: amount,
+		}, nil
+	}
 }
 
-func (a *Accounts) send(sender string, recipient string, amount uint64) error {
-	err := a.withdraw(sender, amount)
+func (a *Accounts) send(sender string, recipient string, amount uint64) ([]*Tx, error) {
+	wtx, err := a.withdraw(sender, amount)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = a.deposit(recipient, amount)
+	dtx, err := a.deposit(recipient, amount)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return []*Tx{wtx, dtx}, nil
 }
