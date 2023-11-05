@@ -16,7 +16,7 @@ func main() {
 
 	e.GET("/", sayHello)
 
-	e.GET("/orderbooks", p.handleGetOrderbooks)
+	e.GET("/orderbooks", p.handleGetOrderbook)
 	e.POST("/orderbooks", p.handleCreateOrderbook)
 	e.POST("/orders", p.handleCreateOrder)
 

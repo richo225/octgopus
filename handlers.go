@@ -23,7 +23,7 @@ func (platform *TradingPlatform) handleCreateOrderbook(c echo.Context) error {
 	return c.JSON(http.StatusOK, &orderbook)
 }
 
-func (platform *TradingPlatform) handleGetOrderbooks(c echo.Context) error {
+func (platform *TradingPlatform) handleGetOrderbook(c echo.Context) error {
 	base := c.QueryParam("base")
 	quote := c.QueryParam("quote")
 	pair := newTradingPair(base, quote)
@@ -53,7 +53,6 @@ func (platform *TradingPlatform) handleCreateAccount(c echo.Context) error {
 	return c.String(http.StatusOK, "Account created")
 }
 
-// Accounts
 func (platform *TradingPlatform) handleGetAccountBalance(c echo.Context) error {
 	signer := c.Param("signer")
 	balance, err := platform.accounts.balanceOf(signer)
