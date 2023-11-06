@@ -41,7 +41,7 @@ func TestLimitRemoveOrder(t *testing.T) {
 	assert.Equal(t, uint64(40), limit.TotalVolume, "limit should have a total volume of 40")
 	assert.Equal(t, order1, limit.orders[0], "limit should have the correct order at index 0")
 	assert.Equal(t, order3, limit.orders[1], "limit should have the correct order at index 1")
-	assert.Nil(t, order2.limit, "order2's limit should be nil")
+	assert.Nil(t, order2.Limit, "order2's limit should be nil")
 }
 
 func TestLimitMatchOrder(t *testing.T) {
@@ -54,10 +54,10 @@ func TestLimitMatchOrder(t *testing.T) {
 	matches := limit.matchOrder(buyOrder)
 
 	assert.Equal(t, 1, len(matches), "limit should have 1 match")
-	assert.Equal(t, buyOrder, matches[0].bid, "match bid should be order")
-	assert.Equal(t, sellOrder, matches[0].ask, "match ask should be order")
-	assert.Equal(t, uint64(3), matches[0].sizeFilled, "match size filled should be 3")
-	assert.Equal(t, uint64(250), matches[0].price, "match price should be 250")
+	assert.Equal(t, buyOrder, matches[0].Bid, "match bid should be order")
+	assert.Equal(t, sellOrder, matches[0].Ask, "match ask should be order")
+	assert.Equal(t, uint64(3), matches[0].SizeFilled, "match size filled should be 3")
+	assert.Equal(t, uint64(250), matches[0].Price, "match price should be 250")
 	assert.Equal(t, uint64(0), limit.TotalVolume, "limit should have the correct total volume")
 
 	// test that the sell limit order is removed
@@ -74,8 +74,8 @@ func TestLimitFillOrders(t *testing.T) {
 
 	match := limit.fillOrders(buyOrder, sellOrder)
 
-	assert.Equal(t, buyOrder, match.bid, "match bid should be order")
-	assert.Equal(t, sellOrder, match.ask, "match ask should be order")
-	assert.Equal(t, uint64(1), match.sizeFilled, "match size filled should be 1")
-	assert.Equal(t, uint64(250), match.price, "match price should be 250")
+	assert.Equal(t, buyOrder, match.Bid, "match bid should be order")
+	assert.Equal(t, sellOrder, match.Ask, "match ask should be order")
+	assert.Equal(t, uint64(1), match.SizeFilled, "match size filled should be 1")
+	assert.Equal(t, uint64(250), match.Price, "match price should be 250")
 }

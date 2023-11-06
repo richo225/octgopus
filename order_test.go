@@ -9,6 +9,6 @@ import (
 func TestNewOrder(t *testing.T) {
 	order := newOrder(Bid, 5)
 
-	assert.Equal(t, Bid, order.side, "order side should be Bid")
-	assert.Equal(t, uint64(5), order.size, "order size should be 5")
+	assert.Equal(t, Bid, order.Side, "order side should be Bid")
+	assert.Equal(t, uint64(5), order.Size, "order size should be 5")
 }

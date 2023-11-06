@@ -81,8 +81,8 @@ func (book *Orderbook) totalAskVolume() uint64 {
 	return total
 }
 
-func (book *Orderbook) placeLimitOrder(price uint64, order *Order) {
-	if order.side == Bid {
+func (book *Orderbook) placeLimitOrder(price uint64, order *Order) *Order {
+	if order.Side == Bid {
 		// check if a limit already exists at the order price
 		limit, ok := book.bidLimits[price]
 		if ok {
@@ -106,16 +106,18 @@ func (book *Orderbook) placeLimitOrder(price uint64, order *Order) {
 			newLimit.addOrder(order)
 		}
 	}
+
+	return order
 }
 
 func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 	matches := []Match{}
 
 	// check which side order is
-	if order.side == Bid {
+	if order.Side == Bid {
 		// if total ask volume is less than order size, return error
-		if book.totalAskVolume() < order.size {
-			return nil, &InsufficientVolumeError{book.totalAskVolume(), order.size}
+		if book.totalAskVolume() < order.Size {
+			return nil, &InsufficientVolumeError{book.totalAskVolume(), order.Size}
 		}
 
 		// get all the sorted asks/bids of opposite side
@@ -131,15 +133,15 @@ func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 			}
 
 			// if the order is filled, break
-			if order.size == 0 {
+			if order.Size == 0 {
 				break
 			}
 
 		}
 	} else {
 		// if total bid volume is less than order size, return error
-		if book.totalBidVolume() < order.size {
-			return nil, &InsufficientVolumeError{book.totalBidVolume(), order.size}
+		if book.totalBidVolume() < order.Size {
+			return nil, &InsufficientVolumeError{book.totalBidVolume(), order.Size}
 		}
 
 		for _, limit := range book.getBids() {
@@ -151,7 +153,7 @@ func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 				book.removeLimit(Bid, limit)
 			}
 
-			if order.size == 0 {
+			if order.Size == 0 {
 				break
 			}
 		}
@@ -161,8 +163,8 @@ func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 }
 
 func (book *Orderbook) cancelOrder(order *Order) {
-	limit := order.limit
-	side := order.side
+	limit := order.Limit
+	side := order.Side
 	if limit == nil {
 		return
 	}

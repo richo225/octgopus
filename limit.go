@@ -3,10 +3,10 @@ package main
 import "sort"
 
 type Match struct {
-	ask        *Order
-	bid        *Order
-	sizeFilled uint64
-	price      uint64
+	Ask        *Order `json:"ask"`
+	Bid        *Order `json:"bid"`
+	SizeFilled uint64 `json:"size_filled"`
+	Price      uint64 `json:"price"`
 }
 
 type Limit struct {
@@ -23,23 +23,23 @@ func newLimit(price uint64) *Limit {
 }
 
 func (limit *Limit) addOrder(order *Order) {
-	order.limit = limit
+	order.Limit = limit
 	limit.orders = append(limit.orders, order)
-	limit.TotalVolume += order.size
+	limit.TotalVolume += order.Size
 }
 
 func (limit *Limit) removeOrder(order *Order) {
 	for i, o := range limit.orders {
 		if o == order {
 			limit.orders = append(limit.orders[:i], limit.orders[i+1:]...)
-			limit.TotalVolume -= order.size
+			limit.TotalVolume -= order.Size
 			break
 		}
 	}
-	order.limit = nil
+	order.Limit = nil
 	// resort the orders by timestamp
 	sort.Slice(limit.orders, func(i, j int) bool {
-		return limit.orders[i].timestamp < limit.orders[j].timestamp
+		return limit.orders[i].Timestamp < limit.orders[j].Timestamp
 	})
 }
 
@@ -53,15 +53,15 @@ func (limit *Limit) matchOrder(order *Order) []Match {
 		// add the match to the list of matches
 		matches = append(matches, match)
 
-		limit.TotalVolume -= match.sizeFilled
+		limit.TotalVolume -= match.SizeFilled
 
 		// remove the limit order if it is filled
-		if limitOrder.size == 0 {
+		if limitOrder.Size == 0 {
 			limit.removeOrder(limitOrder)
 		}
 
 		// if the order is filled, break
-		if order.size == 0 {
+		if order.Size == 0 {
 			break
 		}
 	}
@@ -76,7 +76,7 @@ func (limit *Limit) fillOrders(limitOrder, order *Order) Match {
 		sizeFilled uint64
 	)
 
-	if order.side == Bid {
+	if order.Side == Bid {
 		bid = order
 		ask = limitOrder
 	} else {
@@ -85,21 +85,21 @@ func (limit *Limit) fillOrders(limitOrder, order *Order) Match {
 	}
 
 	// if the order is smaller than the limit order, fill the order
-	if limitOrder.size >= order.size {
-		limitOrder.size -= order.size
-		sizeFilled = order.size
-		order.size = 0
+	if limitOrder.Size >= order.Size {
+		limitOrder.Size -= order.Size
+		sizeFilled = order.Size
+		order.Size = 0
 	} else {
 		// if the order is larger than the limit order, fill the limit order
-		order.size -= limitOrder.size
-		sizeFilled = limitOrder.size
-		limitOrder.size = 0
+		order.Size -= limitOrder.Size
+		sizeFilled = limitOrder.Size
+		limitOrder.Size = 0
 	}
 
 	return Match{
-		ask:        ask,
-		bid:        bid,
-		sizeFilled: sizeFilled,
-		price:      limit.Price,
+		Ask:        ask,
+		Bid:        bid,
+		SizeFilled: sizeFilled,
+		Price:      limit.Price,
 	}
 }

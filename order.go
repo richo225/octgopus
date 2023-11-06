@@ -10,16 +10,16 @@ const (
 )
 
 type Order struct {
-	side      Side
-	limit     *Limit
-	size      uint64
-	timestamp int64
+	Side      Side   `json:"side"`
+	Limit     *Limit `json:"-"`
+	Size      uint64 `json:"size"`
+	Timestamp int64  `json:"timestamp"`
 }
 
 func newOrder(side Side, size uint64) *Order {
 	return &Order{
-		side:      side,
-		size:      size,
-		timestamp: time.Now().UnixNano(),
+		Side:      side,
+		Size:      size,
+		Timestamp: time.Now().UnixNano(),
 	}
 }

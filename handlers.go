@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/kr/pretty"
 	"github.com/labstack/echo/v4"
 )
 
@@ -38,7 +39,41 @@ func (platform *TradingPlatform) handleGetOrderbook(c echo.Context) error {
 
 // Orders
 func (platform *TradingPlatform) handleCreateOrder(c echo.Context) error {
-	return c.String(http.StatusOK, "Order")
+	base := c.QueryParam("base")
+	quote := c.QueryParam("quote")
+	pair := newTradingPair(base, quote)
+	side := c.QueryParam("side")
+	orderType := c.QueryParam("type")
+
+	// TODO: replace above with binding to a request struct
+
+	priceStr := c.QueryParam("price")
+	price, err := strconv.ParseUint(priceStr, 10, 64)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	sizeStr := c.QueryParam("size")
+	size, err := strconv.ParseUint(sizeStr, 10, 64)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	pretty.Log("Price: ", price)
+	pretty.Log("Size: ", size)
+	pretty.Log("Side: ", side)
+	pretty.Log("CastedSide: ", Side(side))
+	pretty.Log("OrderType: ", orderType)
+	pretty.Log("Casted OrderType: ", OrderType(orderType))
+
+	matches, err := platform.placeOrder(pair, price, Side(side), size, OrderType(orderType))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	pretty.Log("Matches: ", matches)
+
+	return c.JSON(http.StatusOK, &matches)
 }
 
 // Accounting
@@ -118,4 +153,13 @@ func (platform *TradingPlatform) handleAccountSend(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, &tx)
+}
+
+type PlaceOrderRequestParams struct {
+	Quote     string    `json:"quote" form:"quote" query:"quote"`
+	Base      string    `json:"base" form:"base" query:"base"`
+	Side      Side      `json:"side" form:"side" query:"side"`
+	OrderType OrderType `json:"order_type" form:"order_type" query:"order_type"`
+	Price     uint64    `json:"price" form:"price" query:"price"`
+	Size      uint64    `json:"size" form:"size" query:"size"`
 }
