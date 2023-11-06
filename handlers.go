@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/kr/pretty"
 	"github.com/labstack/echo/v4"
 )
 
@@ -59,21 +58,22 @@ func (platform *TradingPlatform) handleCreateOrder(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	pretty.Log("Price: ", price)
-	pretty.Log("Size: ", size)
-	pretty.Log("Side: ", side)
-	pretty.Log("CastedSide: ", Side(side))
-	pretty.Log("OrderType: ", orderType)
-	pretty.Log("Casted OrderType: ", OrderType(orderType))
+	order := newOrder(Side(side), size)
+	if OrderType(orderType) == MarketOrder {
+		matches, err := platform.placeMarketOrder(pair, order)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
 
-	matches, err := platform.placeOrder(pair, price, Side(side), size, OrderType(orderType))
+		return c.JSON(http.StatusOK, &matches)
+	}
+
+	err = platform.placeLimitOrder(pair, price, order)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	pretty.Log("Matches: ", matches)
-
-	return c.JSON(http.StatusOK, &matches)
+	return c.JSON(http.StatusOK, &order)
 }
 
 // Accounting
