@@ -10,7 +10,7 @@ func TestNewLimit(t *testing.T) {
 	limit := newLimit(250)
 
 	assert.Equal(t, uint64(250), limit.Price, "price should be 250")
-	assert.Empty(t, limit.orders, "limit orders should be empty")
+	assert.Empty(t, limit.Orders, "limit orders should be empty")
 }
 
 func TestLimitAddOrder(t *testing.T) {
@@ -19,8 +19,8 @@ func TestLimitAddOrder(t *testing.T) {
 
 	limit.addOrder(order)
 
-	assert.Equal(t, 1, len(limit.orders), "limit should have 1 order")
-	assert.Equal(t, order, limit.orders[0], "limit order should be new order")
+	assert.Equal(t, 1, len(limit.Orders), "limit should have 1 order")
+	assert.Equal(t, order, limit.Orders[0], "limit order should be new order")
 	assert.Equal(t, uint64(5), limit.TotalVolume, "limit total volume should be 5")
 }
 
@@ -37,10 +37,10 @@ func TestLimitRemoveOrder(t *testing.T) {
 
 	limit.removeOrder(order2)
 
-	assert.Equal(t, 2, len(limit.orders), "limit should have 2 orders")
+	assert.Equal(t, 2, len(limit.Orders), "limit should have 2 orders")
 	assert.Equal(t, uint64(40), limit.TotalVolume, "limit should have a total volume of 40")
-	assert.Equal(t, order1, limit.orders[0], "limit should have the correct order at index 0")
-	assert.Equal(t, order3, limit.orders[1], "limit should have the correct order at index 1")
+	assert.Equal(t, order1, limit.Orders[0], "limit should have the correct order at index 0")
+	assert.Equal(t, order3, limit.Orders[1], "limit should have the correct order at index 1")
 	assert.Equal(t, uint64(0), order2.Price, "order should have a price of 0")
 }
 
@@ -61,7 +61,7 @@ func TestLimitMatchOrder(t *testing.T) {
 	assert.Equal(t, uint64(0), limit.TotalVolume, "limit should have the correct total volume")
 
 	// test that the sell limit order is removed
-	assert.Equal(t, 0, len(limit.orders), "limit should have 0 orders")
+	assert.Equal(t, 0, len(limit.Orders), "limit should have 0 orders")
 
 }
 

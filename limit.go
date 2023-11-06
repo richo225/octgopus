@@ -12,34 +12,34 @@ type Match struct {
 type Limit struct {
 	Price       uint64   `json:"price"`
 	TotalVolume uint64   `json:"total_volume"`
-	orders      []*Order `json:"-"`
+	Orders      []*Order `json:"orders"`
 }
 
 func newLimit(price uint64) *Limit {
 	return &Limit{
 		Price:  price,
-		orders: []*Order{},
+		Orders: []*Order{},
 	}
 }
 
 func (limit *Limit) addOrder(order *Order) {
 	order.Price = limit.Price
-	limit.orders = append(limit.orders, order)
+	limit.Orders = append(limit.Orders, order)
 	limit.TotalVolume += order.Size
 }
 
 func (limit *Limit) removeOrder(order *Order) {
-	for i, o := range limit.orders {
+	for i, o := range limit.Orders {
 		if o == order {
-			limit.orders = append(limit.orders[:i], limit.orders[i+1:]...)
+			limit.Orders = append(limit.Orders[:i], limit.Orders[i+1:]...)
 			limit.TotalVolume -= order.Size
 			break
 		}
 	}
 	order.Price = 0
 	// resort the orders by timestamp
-	sort.Slice(limit.orders, func(i, j int) bool {
-		return limit.orders[i].Timestamp < limit.orders[j].Timestamp
+	sort.Slice(limit.Orders, func(i, j int) bool {
+		return limit.Orders[i].Timestamp < limit.Orders[j].Timestamp
 	})
 }
 
@@ -47,7 +47,7 @@ func (limit *Limit) matchOrder(order *Order) []Match {
 	matches := []Match{}
 
 	// iterate through each order in the limit
-	for _, limitOrder := range limit.orders {
+	for _, limitOrder := range limit.Orders {
 		// fill the order
 		match := limit.fillOrders(limitOrder, order)
 		// add the match to the list of matches

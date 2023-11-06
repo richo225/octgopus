@@ -128,7 +128,7 @@ func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 			matches = append(matches, limitMatches...)
 
 			// if the limit is empty, remove it from the orderbook
-			if len(limit.orders) == 0 {
+			if len(limit.Orders) == 0 {
 				book.removeLimit(Ask, limit)
 			}
 
@@ -149,7 +149,7 @@ func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 			matches = append(matches, limitMatches...)
 
 			// if the limit is empty, remove it from the orderbook
-			if len(limit.orders) == 0 {
+			if len(limit.Orders) == 0 {
 				book.removeLimit(Bid, limit)
 			}
 
@@ -178,7 +178,7 @@ func (book *Orderbook) cancelOrder(order *Order) {
 
 	limit.removeOrder(order)
 
-	if len(limit.orders) == 0 {
+	if len(limit.Orders) == 0 {
 		book.removeLimit(side, limit)
 	}
 }
