@@ -11,7 +11,7 @@ const (
 
 type Order struct {
 	Side      Side   `json:"side"`
-	Limit     *Limit `json:"-"`
+	Price     uint64 `json:"price"`
 	Size      uint64 `json:"size"`
 	Timestamp int64  `json:"timestamp"`
 }

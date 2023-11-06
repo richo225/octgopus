@@ -23,7 +23,7 @@ func newLimit(price uint64) *Limit {
 }
 
 func (limit *Limit) addOrder(order *Order) {
-	order.Limit = limit
+	order.Price = limit.Price
 	limit.orders = append(limit.orders, order)
 	limit.TotalVolume += order.Size
 }
@@ -36,7 +36,7 @@ func (limit *Limit) removeOrder(order *Order) {
 			break
 		}
 	}
-	order.Limit = nil
+	order.Price = 0
 	// resort the orders by timestamp
 	sort.Slice(limit.orders, func(i, j int) bool {
 		return limit.orders[i].Timestamp < limit.orders[j].Timestamp

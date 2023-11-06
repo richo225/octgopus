@@ -41,7 +41,7 @@ func TestLimitRemoveOrder(t *testing.T) {
 	assert.Equal(t, uint64(40), limit.TotalVolume, "limit should have a total volume of 40")
 	assert.Equal(t, order1, limit.orders[0], "limit should have the correct order at index 0")
 	assert.Equal(t, order3, limit.orders[1], "limit should have the correct order at index 1")
-	assert.Nil(t, order2.Limit, "order2's limit should be nil")
+	assert.Equal(t, uint64(0), order2.Price, "order should have a price of 0")
 }
 
 func TestLimitMatchOrder(t *testing.T) {
