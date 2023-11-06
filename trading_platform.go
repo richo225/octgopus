@@ -33,36 +33,25 @@ func (pair *TradingPair) toString() string {
 
 type TradingPlatform struct {
 	accounts   *Accounts
-	Orderbooks map[TradingPair]Orderbook `json:"orderbooks"`
+	Orderbooks map[TradingPair]*Orderbook `json:"orderbooks"`
 }
 
 func newTradingPlatform() *TradingPlatform {
 	return &TradingPlatform{
 		accounts:   newAccounts(),
-		Orderbooks: make(map[TradingPair]Orderbook),
+		Orderbooks: make(map[TradingPair]*Orderbook),
 	}
 }
 
 func (platform *TradingPlatform) addNewMarket(pair TradingPair) *Orderbook {
 	ob := newOrderBook()
 	ob.Market = &pair
-	platform.Orderbooks[pair] = *ob
+	platform.Orderbooks[pair] = ob
 
 	return ob
 }
 
-func (platform *TradingPlatform) placeOrder(pair TradingPair, price uint64, side Side, size uint64, orderType OrderType) ([]Match, error) {
-
-	order := newOrder(side, size)
-
-	if orderType == MarketOrder {
-		return platform.placeMarketOrder(pair, price, order)
-	} else {
-		return nil, platform.placeLimitOrder(pair, price, order)
-	}
-}
-
-func (platform *TradingPlatform) placeMarketOrder(pair TradingPair, price uint64, order *Order) ([]Match, error) {
+func (platform *TradingPlatform) placeMarketOrder(pair TradingPair, order *Order) ([]Match, error) {
 	orderbook, err := platform.getOrderBook(pair)
 
 	if err != nil {
@@ -89,12 +78,10 @@ func (platform *TradingPlatform) placeLimitOrder(pair TradingPair, price uint64,
 }
 
 func (platform *TradingPlatform) getOrderBook(pair TradingPair) (*Orderbook, error) {
-	// check in orderbooks for the trading pair
 	orderbook, ok := platform.Orderbooks[pair]
 	if !ok {
-		// if market does not exist, return error
 		return nil, &OrderbookNotFoundError{pair}
 	}
 
-	return &orderbook, nil
+	return orderbook, nil
 }

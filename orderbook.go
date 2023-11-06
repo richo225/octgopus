@@ -101,9 +101,9 @@ func (book *Orderbook) placeLimitOrder(price uint64, order *Order) *Order {
 			limit.addOrder(order)
 		} else {
 			newLimit := newLimit(price)
+			newLimit.addOrder(order)
 			book.askLimits[price] = newLimit
 			book.Asks = append(book.Asks, newLimit)
-			newLimit.addOrder(order)
 		}
 	}
 
@@ -163,8 +163,15 @@ func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 }
 
 func (book *Orderbook) cancelOrder(order *Order) {
-	limit := order.Limit
+	var limit *Limit
+
+	price := order.Price
 	side := order.Side
+	if side == Bid {
+		limit = book.bidLimits[price]
+	} else {
+		limit = book.askLimits[price]
+	}
 	if limit == nil {
 		return
 	}

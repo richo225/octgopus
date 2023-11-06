@@ -86,6 +86,8 @@ func TestOrderBookPlaceLimitOrder(t *testing.T) {
 	assert.Equal(t, buyOrder2, orderbook.bidLimits[250].orders[1], "order book should have the correct buy order in bidLimits")
 	assert.Equal(t, buyOrder3, orderbook.bidLimits[410].orders[0], "order book should have the correct buy order in bidLimits")
 	assert.Equal(t, buyOrder1, orderbook.Bids[0].orders[0], "order book should have the correct buy order in bids")
+	assert.Equal(t, buyOrder2, orderbook.Bids[0].orders[1], "order book should have the correct buy order in bids")
+	assert.Equal(t, buyOrder3, orderbook.Bids[1].orders[0], "order book should have the correct buy order in bids")
 
 	assert.Equal(t, 1, len(orderbook.Asks), "order book should have 1 limit in asks")
 	assert.Equal(t, sellOrder, orderbook.askLimits[120].orders[0], "order book should have the correct sell order in askLimits")
