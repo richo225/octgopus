@@ -26,23 +26,27 @@ func TestBalanceOfAccountExists(t *testing.T) {
 func TestDepositAccountNotFound(t *testing.T) {
 	accounts := newAccounts()
 
-	_, err := accounts.deposit("alice", 100)
-	assert.Error(t, err, "deposit(alice) should return an error")
-	assert.IsType(t, &AccountNotFoundError{}, err, "deposit(alice) should return an AccountNotFoundError")
-}
-
-func TestDepositExistingAccount(t *testing.T) {
-	accounts := newAccounts()
-	accounts.createAccount("alice")
-
-	tx, err := accounts.deposit("alice", 100)
-	assert.NoError(t, err, "deposit(alice) should not return an error")
+	tx := accounts.deposit("alice", 100)
 	assert.Equal(t, Deposit, tx.Action, "deposit(alice) should return a Deposit Tx")
 	assert.Equal(t, "alice", tx.Signer, "deposit(alice) should return a Tx with alice as signer")
 	assert.Equal(t, uint64(100), tx.Amount, "deposit(alice) should return a Tx with 100 as amount")
 
 	balance, _ := accounts.balanceOf("alice")
 	assert.Equal(t, uint64(100), balance, "balanceOf(alice) should return 100")
+
+}
+
+func TestDepositExistingAccount(t *testing.T) {
+	accounts := newAccounts()
+	accounts.accounts["alice"] = 50
+
+	tx := accounts.deposit("alice", 100)
+	assert.Equal(t, Deposit, tx.Action, "deposit(alice) should return a Deposit Tx")
+	assert.Equal(t, "alice", tx.Signer, "deposit(alice) should return a Tx with alice as signer")
+	assert.Equal(t, uint64(100), tx.Amount, "deposit(alice) should return a Tx with 100 as amount")
+
+	balance, _ := accounts.balanceOf("alice")
+	assert.Equal(t, uint64(150), balance, "balanceOf(alice) should return 150")
 }
 
 func TestWithdrawAccountNotFound(t *testing.T) {

@@ -106,11 +106,7 @@ func (platform *TradingPlatform) handleAccountDeposit(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	tx, err := platform.accounts.deposit(signer, amount)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, err.Error())
-	}
-
+	tx := platform.accounts.deposit(signer, amount)
 	return c.JSON(http.StatusOK, &tx)
 }
 

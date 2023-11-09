@@ -43,20 +43,23 @@ func (a *Accounts) balanceOf(signer string) (uint64, error) {
 	}
 }
 
-func (a *Accounts) deposit(signer string, amount uint64) (*Tx, error) {
+func (a *Accounts) deposit(signer string, amount uint64) *Tx {
+	var newBalance uint64
+
 	balance, err := a.balanceOf(signer)
 	if err != nil {
-		return nil, err
+		newBalance = amount
+	} else {
+		newBalance = balance + amount
 	}
 
-	newBalance := balance + amount
 	a.accounts[signer] = newBalance
 
 	return &Tx{
 		Action: Deposit,
 		Signer: signer,
 		Amount: amount,
-	}, nil
+	}
 }
 
 func (a *Accounts) withdraw(signer string, amount uint64) (*Tx, error) {
@@ -84,10 +87,7 @@ func (a *Accounts) send(sender string, recipient string, amount uint64) ([]*Tx, 
 		return nil, err
 	}
 
-	dtx, err := a.deposit(recipient, amount)
-	if err != nil {
-		return nil, err
-	}
+	dtx := a.deposit(recipient, amount)
 
 	return []*Tx{wtx, dtx}, nil
 }
