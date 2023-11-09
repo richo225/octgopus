@@ -88,6 +88,12 @@ func (platform *TradingPlatform) handleCreateAccount(c echo.Context) error {
 	return c.String(http.StatusOK, "Account created")
 }
 
+func (platform *TradingPlatform) handleGetAccounts(c echo.Context) error {
+	accounts := platform.accounts
+
+	return c.JSON(http.StatusOK, &accounts)
+}
+
 func (platform *TradingPlatform) handleGetAccountBalance(c echo.Context) error {
 	signer := c.Param("signer")
 	balance, err := platform.accounts.balanceOf(signer)

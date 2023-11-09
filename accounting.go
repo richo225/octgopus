@@ -15,27 +15,27 @@ type Tx struct {
 
 type Accounts struct {
 	// Stores the total balance of each account.
-	accounts map[string]uint64
+	Accounts map[string]uint64 `json:"accounts"`
 }
 
 func newAccounts() *Accounts {
 	return &Accounts{
-		accounts: make(map[string]uint64),
+		Accounts: make(map[string]uint64),
 	}
 }
 
 func (a *Accounts) createAccount(signer string) error {
-	_, ok := a.accounts[signer]
+	_, ok := a.Accounts[signer]
 	if ok {
 		return &AccountAlreadyExistsError{signer}
 	} else {
-		a.accounts[signer] = 0
+		a.Accounts[signer] = 0
 		return nil
 	}
 }
 
 func (a *Accounts) balanceOf(signer string) (uint64, error) {
-	balance, ok := a.accounts[signer]
+	balance, ok := a.Accounts[signer]
 	if ok {
 		return balance, nil
 	} else {
@@ -53,7 +53,7 @@ func (a *Accounts) deposit(signer string, amount uint64) *Tx {
 		newBalance = balance + amount
 	}
 
-	a.accounts[signer] = newBalance
+	a.Accounts[signer] = newBalance
 
 	return &Tx{
 		Action: Deposit,
@@ -71,7 +71,7 @@ func (a *Accounts) withdraw(signer string, amount uint64) (*Tx, error) {
 			return nil, &AccountUnderFundedError{signer}
 		}
 		newBalance := balance - amount
-		a.accounts[signer] = newBalance
+		a.Accounts[signer] = newBalance
 
 		return &Tx{
 			Action: Withdraw,

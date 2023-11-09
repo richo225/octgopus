@@ -38,7 +38,7 @@ func TestDepositAccountNotFound(t *testing.T) {
 
 func TestDepositExistingAccount(t *testing.T) {
 	accounts := newAccounts()
-	accounts.accounts["alice"] = 50
+	accounts.Accounts["alice"] = 50
 
 	tx := accounts.deposit("alice", 100)
 	assert.Equal(t, Deposit, tx.Action, "deposit(alice) should return a Deposit Tx")

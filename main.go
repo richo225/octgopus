@@ -20,6 +20,7 @@ func main() {
 	e.POST("/orderbooks", p.handleCreateOrderbook)
 	e.POST("/orders", p.handleCreateOrder)
 
+	e.GET("/accounts", p.handleGetAccounts)
 	e.GET("/accounts/:signer", p.handleGetAccountBalance)
 	e.POST("/accounts/:signer", p.handleCreateAccount)
 	e.POST("/accounts/:signer/deposit", p.handleAccountDeposit)
