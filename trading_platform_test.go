@@ -64,7 +64,7 @@ func TestTrdingPlatformPlaceLimitOrder(t *testing.T) {
 
 	orderbook, _ := tradingPlatform.getOrderBook(pair)
 
-	assert.Equal(t, uint64(26), orderbook.totalBidVolume(), "order book should have the correct total bid volume")
+	assert.Equal(t, float64(26), orderbook.totalBidVolume(), "order book should have the correct total bid volume")
 
 	assert.Equal(t, 2, len(orderbook.Bids), "order book should have 2 limits in bids")
 	assert.Equal(t, buyOrder1, orderbook.bidLimits[250].Orders[0], "order book should have the correct buy order in bidLimits")

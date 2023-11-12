@@ -3,19 +3,19 @@ package main
 import "sort"
 
 type Match struct {
-	Ask        *Order `json:"ask"`
-	Bid        *Order `json:"bid"`
-	SizeFilled uint64 `json:"size_filled"`
-	Price      uint64 `json:"price"`
+	Ask        *Order  `json:"ask"`
+	Bid        *Order  `json:"bid"`
+	SizeFilled float64 `json:"size_filled"`
+	Price      float64 `json:"price"`
 }
 
 type Limit struct {
-	Price       uint64   `json:"price"`
-	TotalVolume uint64   `json:"total_volume"`
+	Price       float64  `json:"price"`
+	TotalVolume float64  `json:"total_volume"`
 	Orders      []*Order `json:"orders"`
 }
 
-func newLimit(price uint64) *Limit {
+func newLimit(price float64) *Limit {
 	return &Limit{
 		Price:  price,
 		Orders: []*Order{},
@@ -73,7 +73,7 @@ func (limit *Limit) fillOrders(limitOrder, order *Order) Match {
 	var (
 		ask        *Order
 		bid        *Order
-		sizeFilled uint64
+		sizeFilled float64
 	)
 
 	if order.Side == Bid {

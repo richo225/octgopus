@@ -66,7 +66,7 @@ func (platform *TradingPlatform) placeMarketOrder(pair TradingPair, order *Order
 	return matches, nil
 }
 
-func (platform *TradingPlatform) placeLimitOrder(pair TradingPair, price uint64, order *Order) error {
+func (platform *TradingPlatform) placeLimitOrder(pair TradingPair, price float64, order *Order) error {
 	orderbook, err := platform.getOrderBook(pair)
 
 	if err != nil {

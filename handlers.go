@@ -47,13 +47,13 @@ func (platform *TradingPlatform) handleCreateOrder(c echo.Context) error {
 	// TODO: replace above with binding to a request struct
 
 	priceStr := c.QueryParam("price")
-	price, err := strconv.ParseUint(priceStr, 10, 64)
+	price, err := strconv.ParseFloat(priceStr, 64)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	sizeStr := c.QueryParam("size")
-	size, err := strconv.ParseUint(sizeStr, 10, 64)
+	size, err := strconv.ParseFloat(sizeStr, 64)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -101,13 +101,14 @@ func (platform *TradingPlatform) handleGetAccountBalance(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 
-	return c.String(http.StatusOK, fmt.Sprintf("%d", balance))
+	return c.String(http.StatusOK, fmt.Sprintf("%f", balance))
 }
 
 func (platform *TradingPlatform) handleAccountDeposit(c echo.Context) error {
 	signer := c.Param("signer")
 	amountStr := c.QueryParam("amount")
-	amount, err := strconv.ParseUint(amountStr, 10, 64)
+
+	amount, err := strconv.ParseFloat(amountStr, 64)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -119,7 +120,7 @@ func (platform *TradingPlatform) handleAccountDeposit(c echo.Context) error {
 func (platform *TradingPlatform) handleAccountWithdraw(c echo.Context) error {
 	signer := c.Param("signer")
 	amountStr := c.QueryParam("amount")
-	amount, err := strconv.ParseUint(amountStr, 10, 64)
+	amount, err := strconv.ParseFloat(amountStr, 64)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -140,7 +141,7 @@ func (platform *TradingPlatform) handleAccountSend(c echo.Context) error {
 	signer := c.Param("signer")
 	recipient := c.QueryParam("recipient")
 	amountStr := c.QueryParam("amount")
-	amount, err := strconv.ParseUint(amountStr, 10, 64)
+	amount, err := strconv.ParseFloat(amountStr, 64)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -162,6 +163,6 @@ type PlaceOrderRequestParams struct {
 	Base      string    `json:"base" form:"base" query:"base"`
 	Side      Side      `json:"side" form:"side" query:"side"`
 	OrderType OrderType `json:"order_type" form:"order_type" query:"order_type"`
-	Price     uint64    `json:"price" form:"price" query:"price"`
-	Size      uint64    `json:"size" form:"size" query:"size"`
+	Price     float64   `json:"price" form:"price" query:"price"`
+	Size      float64   `json:"size" form:"size" query:"size"`
 }

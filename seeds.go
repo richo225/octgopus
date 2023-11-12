@@ -44,17 +44,14 @@ func (platform *TradingPlatform) writeFromFile(filepath string, pair TradingPair
 			break
 		}
 
-		// Parse price and amount
-		askPrice, _ := strconv.ParseUint(record[0], 10, 64)
-		askAmount, _ := strconv.ParseUint(record[1], 10, 64)
-		bidPrice, _ := strconv.ParseUint(record[2], 10, 64)
-		bidAmount, _ := strconv.ParseUint(record[3], 10, 64)
+		askPrice, _ := strconv.ParseFloat(record[0], 64)
+		askAmount, _ := strconv.ParseFloat(record[1], 64)
+		bidPrice, _ := strconv.ParseFloat(record[2], 64)
+		bidAmount, _ := strconv.ParseFloat(record[3], 64)
 
-		// Create and place ask order
 		askOrder := newOrder(Ask, askAmount)
 		platform.placeLimitOrder(pair, askPrice, askOrder)
 
-		// Create and place bid order
 		bidOrder := newOrder(Bid, bidAmount)
 		platform.placeLimitOrder(pair, bidPrice, bidOrder)
 	}

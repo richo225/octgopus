@@ -6,8 +6,8 @@ import (
 )
 
 type InsufficientVolumeError struct {
-	available uint64
-	requested uint64
+	available float64
+	requested float64
 }
 
 func (e *InsufficientVolumeError) Error() string {
@@ -15,19 +15,19 @@ func (e *InsufficientVolumeError) Error() string {
 }
 
 type Orderbook struct {
-	Market    *TradingPair      `json:"market"`
-	Asks      []*Limit          `json:"asks"`
-	Bids      []*Limit          `json:"bids"`
-	askLimits map[uint64]*Limit `json:"-"`
-	bidLimits map[uint64]*Limit `json:"-"`
+	Market    *TradingPair       `json:"market"`
+	Asks      []*Limit           `json:"asks"`
+	Bids      []*Limit           `json:"bids"`
+	askLimits map[float64]*Limit `json:"-"`
+	bidLimits map[float64]*Limit `json:"-"`
 }
 
 func newOrderBook() *Orderbook {
 	return &Orderbook{
 		Asks:      []*Limit{},
 		Bids:      []*Limit{},
-		askLimits: make(map[uint64]*Limit),
-		bidLimits: make(map[uint64]*Limit),
+		askLimits: make(map[float64]*Limit),
+		bidLimits: make(map[float64]*Limit),
 	}
 }
 
@@ -63,8 +63,8 @@ func (book *Orderbook) bestBid() *Limit {
 	return book.getBids()[0]
 }
 
-func (book *Orderbook) totalBidVolume() uint64 {
-	var total uint64
+func (book *Orderbook) totalBidVolume() float64 {
+	var total float64
 	for _, limit := range book.Bids {
 		total += limit.TotalVolume
 	}
@@ -72,8 +72,8 @@ func (book *Orderbook) totalBidVolume() uint64 {
 	return total
 }
 
-func (book *Orderbook) totalAskVolume() uint64 {
-	var total uint64
+func (book *Orderbook) totalAskVolume() float64 {
+	var total float64
 	for _, limit := range book.Asks {
 		total += limit.TotalVolume
 	}
@@ -81,7 +81,7 @@ func (book *Orderbook) totalAskVolume() uint64 {
 	return total
 }
 
-func (book *Orderbook) placeLimitOrder(price uint64, order *Order) *Order {
+func (book *Orderbook) placeLimitOrder(price float64, order *Order) *Order {
 	if order.Side == Bid {
 		// check if a limit already exists at the order price
 		limit, ok := book.bidLimits[price]
