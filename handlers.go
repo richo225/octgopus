@@ -33,6 +33,9 @@ func (platform *TradingPlatform) handleGetOrderbook(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 
+	orderbook.getAsks()
+	orderbook.getBids()
+
 	return c.JSON(http.StatusOK, &orderbook)
 }
 
