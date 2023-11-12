@@ -10,7 +10,6 @@ func main() {
 	e := echo.New()
 	p := newTradingPlatform()
 
-	pretty.Log("Seeding data...")
 	p.seedData()
 
 	e.Use(middleware.RequestID())

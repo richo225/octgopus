@@ -4,9 +4,13 @@ import (
 	"encoding/csv"
 	"os"
 	"strconv"
+
+	"github.com/kr/pretty"
 )
 
 func (platform *TradingPlatform) seedData() {
+	pretty.Log("Seeding data...")
+
 	ethusd := newTradingPair("ETH", "USD")
 	ethgbp := newTradingPair("ETH", "GBP")
 	btcusd := newTradingPair("BTC", "USD")
@@ -16,9 +20,13 @@ func (platform *TradingPlatform) seedData() {
 	platform.writeFromFile("data/eth_gbp_order_book.csv", ethgbp)
 	platform.writeFromFile("data/btc_usd_order_book.csv", btcusd)
 	platform.writeFromFile("data/btc_gbp_order_book.csv", btcgbp)
+
+	pretty.Log("Seeding data complete!")
 }
 
 func (platform *TradingPlatform) writeFromFile(filepath string, pair TradingPair) {
+	pretty.Log("Seeding data for " + pair.toString() + "...")
+
 	f, err := os.Open(filepath)
 	if err != nil {
 		panic(err)
@@ -50,4 +58,6 @@ func (platform *TradingPlatform) writeFromFile(filepath string, pair TradingPair
 		bidOrder := newOrder(Bid, bidAmount)
 		platform.placeLimitOrder(pair, bidPrice, bidOrder)
 	}
+
+	pretty.Log("Seeding data for " + pair.toString() + " complete!")
 }
