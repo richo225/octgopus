@@ -19,25 +19,20 @@ func (platform *TradingPlatform) seedData() {
 }
 
 func (platform *TradingPlatform) writeFromFile(filepath string, pair TradingPair) {
-	// Open the CSV file
 	f, err := os.Open(filepath)
 	if err != nil {
 		panic(err)
 	}
 	defer f.Close()
 
-	// Create a new reader
 	r := csv.NewReader(f)
-	// Read the header row
 	_, err = r.Read()
 	if err != nil {
 		panic(err)
 	}
 
-	// Create market for pair
 	platform.addNewMarket(pair)
 
-	// Iterate over the remaining rows
 	for {
 		record, err := r.Read()
 		if err != nil {
