@@ -22,7 +22,7 @@ func main() {
 		AllowMethods: []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
 	}))
 
-	e.GET("/", sayHello)
+	e.GET("/", checkHealth)
 
 	e.GET("/orderbooks", p.handleGetOrderbook)
 	e.POST("/orderbooks", p.handleCreateOrderbook)

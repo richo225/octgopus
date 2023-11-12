@@ -8,15 +8,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func sayHello(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
+func checkHealth(c echo.Context) error {
+	return c.String(http.StatusOK, "Up")
 }
 
 // Orderbooks
 func (platform *TradingPlatform) handleCreateOrderbook(c echo.Context) error {
-	base := c.QueryParam("base")
-	quote := c.QueryParam("quote")
-	pair := newTradingPair(base, quote)
+	params := MarketParams{}
+	c.Bind(&params)
+	pair := newTradingPair(params.Base, params.Quote)
 
 	orderbook := platform.addNewMarket(pair)
 
@@ -24,9 +24,9 @@ func (platform *TradingPlatform) handleCreateOrderbook(c echo.Context) error {
 }
 
 func (platform *TradingPlatform) handleGetOrderbook(c echo.Context) error {
-	base := c.QueryParam("base")
-	quote := c.QueryParam("quote")
-	pair := newTradingPair(base, quote)
+	params := MarketParams{}
+	c.Bind(&params)
+	pair := newTradingPair(params.Base, params.Quote)
 
 	orderbook, err := platform.getOrderBook(pair)
 	if err != nil {
@@ -98,8 +98,10 @@ func (platform *TradingPlatform) handleGetAccounts(c echo.Context) error {
 }
 
 func (platform *TradingPlatform) handleGetAccountBalance(c echo.Context) error {
-	signer := c.Param("signer")
-	balance, err := platform.accounts.balanceOf(signer)
+	params := AccountBalanceParams{}
+	c.Bind(&params)
+
+	balance, err := platform.accounts.balanceOf(params.Signer)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
@@ -108,27 +110,18 @@ func (platform *TradingPlatform) handleGetAccountBalance(c echo.Context) error {
 }
 
 func (platform *TradingPlatform) handleAccountDeposit(c echo.Context) error {
-	signer := c.Param("signer")
-	amountStr := c.QueryParam("amount")
+	params := AccountActionParams{}
+	c.Bind(&params)
 
-	amount, err := strconv.ParseFloat(amountStr, 64)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	tx := platform.accounts.deposit(signer, amount)
+	tx := platform.accounts.deposit(params.Signer, params.Amount)
 	return c.JSON(http.StatusOK, &tx)
 }
 
 func (platform *TradingPlatform) handleAccountWithdraw(c echo.Context) error {
-	signer := c.Param("signer")
-	amountStr := c.QueryParam("amount")
-	amount, err := strconv.ParseFloat(amountStr, 64)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
+	params := AccountActionParams{}
+	c.Bind(&params)
 
-	tx, err := platform.accounts.withdraw(signer, amount)
+	tx, err := platform.accounts.withdraw(params.Signer, params.Amount)
 	if err != nil {
 		if _, ok := err.(*AccountNotFoundError); ok {
 			return echo.NewHTTPError(http.StatusNotFound, err.Error())
@@ -141,15 +134,10 @@ func (platform *TradingPlatform) handleAccountWithdraw(c echo.Context) error {
 }
 
 func (platform *TradingPlatform) handleAccountSend(c echo.Context) error {
-	signer := c.Param("signer")
-	recipient := c.QueryParam("recipient")
-	amountStr := c.QueryParam("amount")
-	amount, err := strconv.ParseFloat(amountStr, 64)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
+	params := AccountSendParams{}
+	c.Bind(&params)
 
-	tx, err := platform.accounts.send(signer, recipient, amount)
+	tx, err := platform.accounts.send(params.Signer, params.Recipient, params.Amount)
 	if err != nil {
 		if _, ok := err.(*AccountNotFoundError); ok {
 			return echo.NewHTTPError(http.StatusNotFound, err.Error())
@@ -162,10 +150,27 @@ func (platform *TradingPlatform) handleAccountSend(c echo.Context) error {
 }
 
 type PlaceOrderRequestParams struct {
-	Quote     string    `json:"quote" form:"quote" query:"quote"`
-	Base      string    `json:"base" form:"base" query:"base"`
+	*MarketParams
 	Side      Side      `json:"side" form:"side" query:"side"`
 	OrderType OrderType `json:"order_type" form:"order_type" query:"order_type"`
 	Price     float64   `json:"price" form:"price" query:"price"`
 	Size      float64   `json:"size" form:"size" query:"size"`
+}
+
+type MarketParams struct {
+	Quote string `json:"quote" form:"quote" query:"quote"`
+	Base  string `json:"base" form:"base" query:"base"`
+}
+
+type AccountBalanceParams struct {
+	Signer string `json:"signer" form:"signer" query:"signer"`
+}
+
+type AccountActionParams struct {
+	Signer string  `json:"signer" form:"signer" query:"signer"`
+	Amount float64 `json:"amount" form:"amount" query:"amount"`
+}
+type AccountSendParams struct {
+	*AccountActionParams
+	Recipient string `json:"recipient" form:"recipient" query:"recipient"`
 }
