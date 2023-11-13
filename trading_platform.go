@@ -1,5 +1,10 @@
 package main
 
+import (
+	"encoding/json"
+	"errors"
+)
+
 type OrderbookNotFoundError struct {
 	pair TradingPair
 }
@@ -14,6 +19,22 @@ const (
 	LimitOrder  OrderType = "limit"
 	MarketOrder OrderType = "market"
 )
+
+func (ot *OrderType) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+
+	switch s {
+	case string(LimitOrder), string(MarketOrder):
+		*ot = OrderType(s)
+	default:
+		return errors.New("invalid order type")
+	}
+
+	return nil
+}
 
 type TradingPair struct {
 	Base  string `json:"base"`

@@ -1,6 +1,10 @@
 package main
 
-import "time"
+import (
+	"encoding/json"
+	"errors"
+	"time"
+)
 
 type Side string
 
@@ -8,6 +12,22 @@ const (
 	Bid Side = "bid"
 	Ask Side = "ask"
 )
+
+func (side *Side) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+
+	switch s {
+	case string(Bid), string(Ask):
+		*side = Side(s)
+	default:
+		return errors.New("invalid side")
+	}
+
+	return nil
+}
 
 type Order struct {
 	Side      Side    `json:"side"`

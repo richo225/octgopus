@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -41,28 +40,15 @@ func (platform *TradingPlatform) handleGetOrderbook(c echo.Context) error {
 
 // Orders
 func (platform *TradingPlatform) handleCreateOrder(c echo.Context) error {
-	base := c.QueryParam("base")
-	quote := c.QueryParam("quote")
-	pair := newTradingPair(base, quote)
-	side := c.QueryParam("side")
-	orderType := c.QueryParam("type")
-
-	// TODO: replace above with binding to a request struct
-
-	priceStr := c.QueryParam("price")
-	price, err := strconv.ParseFloat(priceStr, 64)
-	if err != nil {
+	params := PlaceOrderRequestParams{}
+	if err := c.Bind(&params); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	sizeStr := c.QueryParam("size")
-	size, err := strconv.ParseFloat(sizeStr, 64)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
+	pair := newTradingPair(params.Base, params.Quote)
+	order := newOrder(params.Side, params.Size)
 
-	order := newOrder(Side(side), size)
-	if OrderType(orderType) == MarketOrder {
+	if params.Type == MarketOrder {
 		matches, err := platform.placeMarketOrder(pair, order)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -71,7 +57,7 @@ func (platform *TradingPlatform) handleCreateOrder(c echo.Context) error {
 		return c.JSON(http.StatusOK, &matches)
 	}
 
-	err = platform.placeLimitOrder(pair, price, order)
+	err := platform.placeLimitOrder(pair, params.Price, order)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -150,11 +136,11 @@ func (platform *TradingPlatform) handleAccountSend(c echo.Context) error {
 }
 
 type PlaceOrderRequestParams struct {
-	*MarketParams
-	Side      Side      `json:"side" form:"side" query:"side"`
-	OrderType OrderType `json:"order_type" form:"order_type" query:"order_type"`
-	Price     float64   `json:"price" form:"price" query:"price"`
-	Size      float64   `json:"size" form:"size" query:"size"`
+	MarketParams
+	Side  Side      `json:"side" form:"side" query:"side"`
+	Type  OrderType `json:"type" form:"type" query:"type"`
+	Price float64   `json:"price" form:"price" query:"price"`
+	Size  float64   `json:"size" form:"size" query:"size"`
 }
 
 type MarketParams struct {
@@ -171,6 +157,6 @@ type AccountActionParams struct {
 	Amount float64 `json:"amount" form:"amount" query:"amount"`
 }
 type AccountSendParams struct {
-	*AccountActionParams
+	AccountActionParams
 	Recipient string `json:"recipient" form:"recipient" query:"recipient"`
 }
