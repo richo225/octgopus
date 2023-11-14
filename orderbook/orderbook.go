@@ -1,18 +1,8 @@
 package orderbook
 
 import (
-	"fmt"
 	"sort"
 )
-
-type InsufficientVolumeError struct {
-	available float64
-	requested float64
-}
-
-func (e *InsufficientVolumeError) Error() string {
-	return "InsufficientVolume : " + fmt.Sprint(e.available) + " < " + fmt.Sprint(e.requested)
-}
 
 type Orderbook struct {
 	Market    *TradingPair       `json:"market"`

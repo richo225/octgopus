@@ -7,14 +7,6 @@ import (
 	"github.com/richo225/octgopus/accounting"
 )
 
-type OrderbookNotFoundError struct {
-	pair TradingPair
-}
-
-func (e *OrderbookNotFoundError) Error() string {
-	return "MarketNotfound : " + e.pair.ToString()
-}
-
 type OrderType string
 
 const (
