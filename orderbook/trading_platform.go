@@ -55,13 +55,13 @@ func (pair *TradingPair) ToString() string {
 }
 
 type TradingPlatform struct {
-	accounts   *accounting.Accounts
+	Accounts   *accounting.Accounts
 	Orderbooks map[TradingPair]*Orderbook `json:"orderbooks"`
 }
 
 func NewTradingPlatform() *TradingPlatform {
 	return &TradingPlatform{
-		accounts:   accounting.NewAccounts(),
+		Accounts:   accounting.NewAccounts(),
 		Orderbooks: make(map[TradingPair]*Orderbook),
 	}
 }
@@ -75,7 +75,7 @@ func (platform *TradingPlatform) AddNewMarket(pair TradingPair) *Orderbook {
 }
 
 func (platform *TradingPlatform) PlaceMarketOrder(pair TradingPair, order *Order) ([]Match, error) {
-	orderbook, err := platform.getOrderBook(pair)
+	orderbook, err := platform.GetOrderBook(pair)
 
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (platform *TradingPlatform) PlaceMarketOrder(pair TradingPair, order *Order
 }
 
 func (platform *TradingPlatform) PlaceLimitOrder(pair TradingPair, price float64, order *Order) error {
-	orderbook, err := platform.getOrderBook(pair)
+	orderbook, err := platform.GetOrderBook(pair)
 
 	if err != nil {
 		return err
@@ -100,7 +100,7 @@ func (platform *TradingPlatform) PlaceLimitOrder(pair TradingPair, price float64
 	return nil
 }
 
-func (platform *TradingPlatform) getOrderBook(pair TradingPair) (*Orderbook, error) {
+func (platform *TradingPlatform) GetOrderBook(pair TradingPair) (*Orderbook, error) {
 	orderbook, ok := platform.Orderbooks[pair]
 	if !ok {
 		return nil, &OrderbookNotFoundError{pair}

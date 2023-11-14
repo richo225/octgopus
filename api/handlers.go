@@ -1,55 +1,62 @@
-package main
+package api
 
 import (
 	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/richo225/octgopus/accounting"
+	"github.com/richo225/octgopus/orderbook"
 )
 
-func checkHealth(c echo.Context) error {
+type CustomContext struct {
+	echo.Context
+	platform *orderbook.TradingPlatform
+}
+
+func CheckHealth(c echo.Context) error {
 	return c.String(http.StatusOK, "Up")
 }
 
 // Orderbooks
-func (platform *TradingPlatform) handleCreateOrderbook(c echo.Context) error {
+func (c *CustomContext) handleCreateOrderbook() error {
 	params := MarketParams{}
 	c.Bind(&params)
-	pair := newTradingPair(params.Base, params.Quote)
+	pair := orderbook.NewTradingPair(params.Base, params.Quote)
 
-	orderbook := platform.addNewMarket(pair)
+	orderbook := c.platform.AddNewMarket(pair)
 
 	return c.JSON(http.StatusOK, &orderbook)
 }
 
-func (platform *TradingPlatform) handleGetOrderbook(c echo.Context) error {
+func (c *CustomContext) handleGetOrderbook() error {
 	params := MarketParams{}
 	c.Bind(&params)
-	pair := newTradingPair(params.Base, params.Quote)
+	pair := orderbook.NewTradingPair(params.Base, params.Quote)
 
-	orderbook, err := platform.getOrderBook(pair)
+	orderbook, err := c.platform.GetOrderBook(pair)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 
-	orderbook.getAsks()
-	orderbook.getBids()
+	orderbook.GetAsks()
+	orderbook.GetBids()
 
 	return c.JSON(http.StatusOK, &orderbook)
 }
 
 // Orders
-func (platform *TradingPlatform) handleCreateOrder(c echo.Context) error {
+func (c *CustomContext) handleCreateOrder() error {
 	params := PlaceOrderRequestParams{}
 	if err := c.Bind(&params); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	pair := newTradingPair(params.Base, params.Quote)
-	order := newOrder(params.Side, params.Size)
+	pair := orderbook.NewTradingPair(params.Base, params.Quote)
+	order := orderbook.NewOrder(params.Side, params.Size)
 
-	if params.Type == MarketOrder {
-		matches, err := platform.placeMarketOrder(pair, order)
+	if params.Type == orderbook.MarketOrder {
+		matches, err := c.platform.PlaceMarketOrder(pair, order)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
@@ -57,7 +64,7 @@ func (platform *TradingPlatform) handleCreateOrder(c echo.Context) error {
 		return c.JSON(http.StatusOK, &matches)
 	}
 
-	err := platform.placeLimitOrder(pair, params.Price, order)
+	err := c.platform.PlaceLimitOrder(pair, params.Price, order)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -66,10 +73,10 @@ func (platform *TradingPlatform) handleCreateOrder(c echo.Context) error {
 }
 
 // Accounting
-func (platform *TradingPlatform) handleCreateAccount(c echo.Context) error {
+func (c *CustomContext) handleCreateAccount() error {
 	signer := c.Param("signer")
 
-	err := platform.accounts.createAccount(signer)
+	err := c.platform.Accounts.CreateAccount(signer)
 	if err != nil {
 		return err
 	}
@@ -77,17 +84,17 @@ func (platform *TradingPlatform) handleCreateAccount(c echo.Context) error {
 	return c.String(http.StatusOK, "Account created")
 }
 
-func (platform *TradingPlatform) handleGetAccounts(c echo.Context) error {
-	accounts := platform.accounts
+func (c *CustomContext) handleGetAccounts() error {
+	accounts := c.platform.Accounts
 
 	return c.JSON(http.StatusOK, &accounts)
 }
 
-func (platform *TradingPlatform) handleGetAccountBalance(c echo.Context) error {
+func (c *CustomContext) handleGetAccountBalance() error {
 	params := AccountBalanceParams{}
 	c.Bind(&params)
 
-	balance, err := platform.accounts.balanceOf(params.Signer)
+	balance, err := c.platform.Accounts.BalanceOf(params.Signer)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
@@ -95,23 +102,23 @@ func (platform *TradingPlatform) handleGetAccountBalance(c echo.Context) error {
 	return c.String(http.StatusOK, fmt.Sprintf("%f", balance))
 }
 
-func (platform *TradingPlatform) handleAccountDeposit(c echo.Context) error {
+func (c *CustomContext) handleAccountDeposit() error {
 	params := AccountActionParams{}
 	c.Bind(&params)
 
-	tx := platform.accounts.deposit(params.Signer, params.Amount)
+	tx := c.platform.Accounts.Deposit(params.Signer, params.Amount)
 	return c.JSON(http.StatusOK, &tx)
 }
 
-func (platform *TradingPlatform) handleAccountWithdraw(c echo.Context) error {
+func (c *CustomContext) handleAccountWithdraw() error {
 	params := AccountActionParams{}
 	c.Bind(&params)
 
-	tx, err := platform.accounts.withdraw(params.Signer, params.Amount)
+	tx, err := c.platform.Accounts.Withdraw(params.Signer, params.Amount)
 	if err != nil {
-		if _, ok := err.(*AccountNotFoundError); ok {
+		if _, ok := err.(*accounting.AccountNotFoundError); ok {
 			return echo.NewHTTPError(http.StatusNotFound, err.Error())
-		} else if _, ok := err.(*AccountUnderFundedError); ok {
+		} else if _, ok := err.(*accounting.AccountUnderFundedError); ok {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 	}
@@ -119,15 +126,15 @@ func (platform *TradingPlatform) handleAccountWithdraw(c echo.Context) error {
 	return c.JSON(http.StatusOK, &tx)
 }
 
-func (platform *TradingPlatform) handleAccountSend(c echo.Context) error {
+func (c *CustomContext) handleAccountSend() error {
 	params := AccountSendParams{}
 	c.Bind(&params)
 
-	tx, err := platform.accounts.send(params.Signer, params.Recipient, params.Amount)
+	tx, err := c.platform.Accounts.Send(params.Signer, params.Recipient, params.Amount)
 	if err != nil {
-		if _, ok := err.(*AccountNotFoundError); ok {
+		if _, ok := err.(*accounting.AccountNotFoundError); ok {
 			return echo.NewHTTPError(http.StatusNotFound, err.Error())
-		} else if _, ok := err.(*AccountUnderFundedError); ok {
+		} else if _, ok := err.(*accounting.AccountUnderFundedError); ok {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 	}
@@ -137,10 +144,10 @@ func (platform *TradingPlatform) handleAccountSend(c echo.Context) error {
 
 type PlaceOrderRequestParams struct {
 	MarketParams
-	Side  Side      `json:"side" form:"side" query:"side"`
-	Type  OrderType `json:"type" form:"type" query:"type"`
-	Price float64   `json:"price" form:"price" query:"price"`
-	Size  float64   `json:"size" form:"size" query:"size"`
+	Side  orderbook.Side      `json:"side" form:"side" query:"side"`
+	Type  orderbook.OrderType `json:"type" form:"type" query:"type"`
+	Price float64             `json:"price" form:"price" query:"price"`
+	Size  float64             `json:"size" form:"size" query:"size"`
 }
 
 type MarketParams struct {

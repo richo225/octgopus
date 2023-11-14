@@ -37,12 +37,12 @@ func TestTradingPlatformGetOrderBook(t *testing.T) {
 
 	tradingPlatform.AddNewMarket(pair)
 
-	orderBook, err := tradingPlatform.getOrderBook(pair)
+	orderBook, err := tradingPlatform.GetOrderBook(pair)
 	assert.NoError(t, err, "getOrderBook should not return an error")
 	assert.NotNil(t, orderBook, "getOrderBook should return an order book")
 
 	nonExistantPair := TradingPair{"ETH", "USD"}
-	_, err = tradingPlatform.getOrderBook(nonExistantPair)
+	_, err = tradingPlatform.GetOrderBook(nonExistantPair)
 	assert.Equal(t, &OrderbookNotFoundError{nonExistantPair}, err, "non existent paair should return OrderbookNotFoundError")
 }
 
@@ -62,7 +62,7 @@ func TestTrdingPlatformPlaceLimitOrder(t *testing.T) {
 	tradingPlatform.PlaceLimitOrder(pair, 410, buyOrder3)
 	tradingPlatform.PlaceLimitOrder(pair, 120, sellOrder)
 
-	orderbook, _ := tradingPlatform.getOrderBook(pair)
+	orderbook, _ := tradingPlatform.GetOrderBook(pair)
 
 	assert.Equal(t, float64(26), orderbook.totalBidVolume(), "order book should have the correct total bid volume")
 

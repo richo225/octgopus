@@ -20,7 +20,7 @@ func TestOrderBookAsks(t *testing.T) {
 	limit3 := newLimit(25)
 
 	orderbook.Asks = []*Limit{limit1, limit2, limit3}
-	sortedAsks := orderbook.getAsks()
+	sortedAsks := orderbook.GetAsks()
 
 	assert.Equal(t, 3, len(sortedAsks), "Asks() should return 3 limits")
 	assert.Equal(t, []*Limit{limit2, limit1, limit3}, sortedAsks, "Asks() should return limits in ascending price")
@@ -33,7 +33,7 @@ func TestOrderBookBids(t *testing.T) {
 	limit3 := newLimit(25)
 
 	orderbook.Bids = []*Limit{limit1, limit2, limit3}
-	sortedBids := orderbook.getBids()
+	sortedBids := orderbook.GetBids()
 
 	assert.Equal(t, 3, len(sortedBids), "Bids() should return 3 limits")
 	assert.Equal(t, []*Limit{limit3, limit1, limit2}, sortedBids, "Bids() should return limits in descending price")

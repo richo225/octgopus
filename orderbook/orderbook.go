@@ -31,7 +31,7 @@ func newOrderBook() *Orderbook {
 	}
 }
 
-func (book *Orderbook) getAsks() []*Limit {
+func (book *Orderbook) GetAsks() []*Limit {
 	sort.Slice(book.Asks, func(i, j int) bool {
 		return book.Asks[i].Price < book.Asks[j].Price
 	})
@@ -39,7 +39,7 @@ func (book *Orderbook) getAsks() []*Limit {
 	return book.Asks
 }
 
-func (book *Orderbook) getBids() []*Limit {
+func (book *Orderbook) GetBids() []*Limit {
 	sort.Slice(book.Bids, func(i, j int) bool {
 		return book.Bids[i].Price > book.Bids[j].Price
 	})
@@ -52,7 +52,7 @@ func (book *Orderbook) bestAsk() *Limit {
 		return nil
 	}
 
-	return book.getAsks()[0]
+	return book.GetAsks()[0]
 }
 
 func (book *Orderbook) bestBid() *Limit {
@@ -60,7 +60,7 @@ func (book *Orderbook) bestBid() *Limit {
 		return nil
 	}
 
-	return book.getBids()[0]
+	return book.GetBids()[0]
 }
 
 func (book *Orderbook) totalBidVolume() float64 {
@@ -122,7 +122,7 @@ func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 
 		// get all the sorted asks/bids of opposite side
 		// iterate through each limit (market order so start with smallest price)
-		for _, limit := range book.getAsks() {
+		for _, limit := range book.GetAsks() {
 			// attempt to match the order to the limit
 			limitMatches := limit.matchOrder(order)
 			matches = append(matches, limitMatches...)
@@ -144,7 +144,7 @@ func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 			return nil, &InsufficientVolumeError{book.totalBidVolume(), order.Size}
 		}
 
-		for _, limit := range book.getBids() {
+		for _, limit := range book.GetBids() {
 			limitMatches := limit.matchOrder(order)
 			matches = append(matches, limitMatches...)
 

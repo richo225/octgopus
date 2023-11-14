@@ -24,7 +24,7 @@ func NewAccounts() *Accounts {
 	}
 }
 
-func (a *Accounts) createAccount(signer string) error {
+func (a *Accounts) CreateAccount(signer string) error {
 	_, ok := a.Accounts[signer]
 	if ok {
 		return &AccountAlreadyExistsError{signer}
@@ -34,7 +34,7 @@ func (a *Accounts) createAccount(signer string) error {
 	}
 }
 
-func (a *Accounts) balanceOf(signer string) (float64, error) {
+func (a *Accounts) BalanceOf(signer string) (float64, error) {
 	balance, ok := a.Accounts[signer]
 	if ok {
 		return balance, nil
@@ -43,10 +43,10 @@ func (a *Accounts) balanceOf(signer string) (float64, error) {
 	}
 }
 
-func (a *Accounts) deposit(signer string, amount float64) *Tx {
+func (a *Accounts) Deposit(signer string, amount float64) *Tx {
 	var newBalance float64
 
-	balance, err := a.balanceOf(signer)
+	balance, err := a.BalanceOf(signer)
 	if err != nil {
 		newBalance = amount
 	} else {
@@ -62,8 +62,8 @@ func (a *Accounts) deposit(signer string, amount float64) *Tx {
 	}
 }
 
-func (a *Accounts) withdraw(signer string, amount float64) (*Tx, error) {
-	balance, err := a.balanceOf(signer)
+func (a *Accounts) Withdraw(signer string, amount float64) (*Tx, error) {
+	balance, err := a.BalanceOf(signer)
 	if err != nil {
 		return nil, &AccountNotFoundError{signer}
 	} else {
@@ -81,13 +81,13 @@ func (a *Accounts) withdraw(signer string, amount float64) (*Tx, error) {
 	}
 }
 
-func (a *Accounts) send(sender string, recipient string, amount float64) ([]*Tx, error) {
-	wtx, err := a.withdraw(sender, amount)
+func (a *Accounts) Send(sender string, recipient string, amount float64) ([]*Tx, error) {
+	wtx, err := a.Withdraw(sender, amount)
 	if err != nil {
 		return nil, err
 	}
 
-	dtx := a.deposit(recipient, amount)
+	dtx := a.Deposit(recipient, amount)
 
 	return []*Tx{wtx, dtx}, nil
 }
