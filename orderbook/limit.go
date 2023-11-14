@@ -37,7 +37,6 @@ func (limit *Limit) removeOrder(order *Order) {
 		}
 	}
 	order.Price = 0
-	// resort the orders by timestamp
 	sort.Slice(limit.Orders, func(i, j int) bool {
 		return limit.Orders[i].Timestamp < limit.Orders[j].Timestamp
 	})
@@ -46,21 +45,16 @@ func (limit *Limit) removeOrder(order *Order) {
 func (limit *Limit) matchOrder(order *Order) []Match {
 	matches := []Match{}
 
-	// iterate through each order in the limit
 	for _, limitOrder := range limit.Orders {
-		// fill the order
 		match := limit.fillOrders(limitOrder, order)
-		// add the match to the list of matches
 		matches = append(matches, match)
 
 		limit.TotalVolume -= match.SizeFilled
 
-		// remove the limit order if it is filled
 		if limitOrder.Size == 0 {
 			limit.removeOrder(limitOrder)
 		}
 
-		// if the order is filled, break
 		if order.Size == 0 {
 			break
 		}
@@ -84,13 +78,11 @@ func (limit *Limit) fillOrders(limitOrder, order *Order) Match {
 		ask = order
 	}
 
-	// if the order is smaller than the limit order, fill the order
 	if limitOrder.Size >= order.Size {
 		limitOrder.Size -= order.Size
 		sizeFilled = order.Size
 		order.Size = 0
 	} else {
-		// if the order is larger than the limit order, fill the limit order
 		order.Size -= limitOrder.Size
 		sizeFilled = limitOrder.Size
 		limitOrder.Size = 0

@@ -183,8 +183,6 @@ func TestOrderBookPlaceMarketBuyOrderInsufficientVolume(t *testing.T) {
 	assert.Equal(t, float64(3), buyOrder.Size, "buy order size should be 3")
 }
 
-// ffffffffff
-
 func TestOrderBookPlaceMarketSellOrder(t *testing.T) {
 	orderbook := newOrderBook()
 	sellOrder := NewOrder(Ask, 3)

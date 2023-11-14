@@ -73,13 +73,10 @@ func (book *Orderbook) totalAskVolume() float64 {
 
 func (book *Orderbook) placeLimitOrder(price float64, order *Order) *Order {
 	if order.Side == Bid {
-		// check if a limit already exists at the order price
 		limit, ok := book.bidLimits[price]
 		if ok {
-			// if one exists, add the order to that limit
 			limit.addOrder(order)
 		} else {
-			// if doesn't exist, create a new limit with the order
 			newLimit := newLimit(price)
 			book.bidLimits[price] = newLimit
 			book.Bids = append(book.Bids, newLimit)
@@ -103,33 +100,25 @@ func (book *Orderbook) placeLimitOrder(price float64, order *Order) *Order {
 func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 	matches := []Match{}
 
-	// check which side order is
 	if order.Side == Bid {
-		// if total ask volume is less than order size, return error
 		if book.totalAskVolume() < order.Size {
 			return nil, &InsufficientVolumeError{book.totalAskVolume(), order.Size}
 		}
 
-		// get all the sorted asks/bids of opposite side
-		// iterate through each limit (market order so start with smallest price)
 		for _, limit := range book.GetAsks() {
-			// attempt to match the order to the limit
 			limitMatches := limit.matchOrder(order)
 			matches = append(matches, limitMatches...)
 
-			// if the limit is empty, remove it from the orderbook
 			if len(limit.Orders) == 0 {
 				book.removeLimit(Ask, limit)
 			}
 
-			// if the order is filled, break
 			if order.Size == 0 {
 				break
 			}
 
 		}
 	} else {
-		// if total bid volume is less than order size, return error
 		if book.totalBidVolume() < order.Size {
 			return nil, &InsufficientVolumeError{book.totalBidVolume(), order.Size}
 		}
@@ -138,7 +127,6 @@ func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
 			limitMatches := limit.matchOrder(order)
 			matches = append(matches, limitMatches...)
 
-			// if the limit is empty, remove it from the orderbook
 			if len(limit.Orders) == 0 {
 				book.removeLimit(Bid, limit)
 			}
@@ -175,30 +163,26 @@ func (book *Orderbook) cancelOrder(order *Order) {
 
 func (book *Orderbook) removeLimit(side Side, limit *Limit) {
 	if side == Bid {
-		// remove the limit from the orderbook bidLimits
 		delete(book.bidLimits, limit.Price)
-		// remove the limit from the orderbook bids
+
 		for i, l := range book.Bids {
 			if l == limit {
 				book.Bids = append(book.Bids[:i], book.Bids[i+1:]...)
 				break
 			}
 		}
-		// resort the bids
 		sort.Slice(book.Bids, func(i, j int) bool {
 			return book.Bids[i].Price > book.Bids[j].Price
 		})
 	} else {
-		// remove the limit from the orderbook askLimits
 		delete(book.askLimits, limit.Price)
-		// remove the limit from the orderbook asks
+
 		for i, l := range book.Asks {
 			if l == limit {
 				book.Asks = append(book.Asks[:i], book.Asks[i+1:]...)
 				break
 			}
 		}
-		// resort the asks
 		sort.Slice(book.Asks, func(i, j int) bool {
 			return book.Asks[i].Price < book.Asks[j].Price
 		})

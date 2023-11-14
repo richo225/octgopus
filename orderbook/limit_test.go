@@ -60,7 +60,6 @@ func TestLimitMatchOrder(t *testing.T) {
 	assert.Equal(t, float64(250), matches[0].Price, "match price should be 250")
 	assert.Equal(t, float64(0), limit.TotalVolume, "limit should have the correct total volume")
 
-	// test that the sell limit order is removed
 	assert.Equal(t, 0, len(limit.Orders), "limit should have 0 orders")
 
 }

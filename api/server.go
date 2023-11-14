@@ -19,36 +19,10 @@ func Start(p *orderbook.TradingPlatform) {
 		AllowMethods: []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
 	}))
 
-	e.GET("/", CheckHealth)
+	e.Validator = NewValidator()
 
-	withPlatform := func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			cc := &CustomContext{c, p}
-			return next(cc)
-		}
-	}
-
-	orderbooks := e.Group("/orderbooks", withPlatform)
-	orderbooks.GET("", withCustomContext((*CustomContext).handleGetOrderbook))
-	orderbooks.POST("", withCustomContext((*CustomContext).handleCreateOrderbook))
-
-	orders := e.Group("/orders", withPlatform)
-	orders.POST("", withCustomContext((*CustomContext).handleCreateOrder))
-
-	accounts := e.Group("/accounts", withPlatform)
-	accounts.GET("", withCustomContext((*CustomContext).handleGetAccounts))
-	accounts.GET("/:signer", withCustomContext((*CustomContext).handleGetAccountBalance))
-	accounts.POST("/:signer", withCustomContext((*CustomContext).handleCreateAccount))
-	accounts.POST("/:signer/deposit", withCustomContext((*CustomContext).handleAccountDeposit))
-	accounts.POST("/:signer/withdraw", withCustomContext((*CustomContext).handleAccountWithdraw))
-	accounts.POST("/:signer/send", withCustomContext((*CustomContext).handleAccountSend))
+	registerHandlers(e, p)
 
 	pretty.Log("Starting server...")
 	e.Logger.Fatal(e.Start("localhost:8080"))
-}
-
-func withCustomContext(handler func(c *CustomContext) error) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		return handler(c.(*CustomContext))
-	}
 }
