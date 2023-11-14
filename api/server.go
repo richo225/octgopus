@@ -44,7 +44,7 @@ func Start(p *orderbook.TradingPlatform) {
 	accounts.POST("/:signer/send", withCustomContext((*CustomContext).handleAccountSend))
 
 	pretty.Log("Starting server...")
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start("localhost:8080"))
 }
 
 func withCustomContext(handler func(c *CustomContext) error) echo.HandlerFunc {
