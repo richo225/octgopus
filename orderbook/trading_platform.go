@@ -1,8 +1,10 @@
-package main
+package orderbook
 
 import (
 	"encoding/json"
 	"errors"
+
+	"github.com/richo225/octgopus/accounting"
 )
 
 type OrderbookNotFoundError struct {
@@ -10,7 +12,7 @@ type OrderbookNotFoundError struct {
 }
 
 func (e *OrderbookNotFoundError) Error() string {
-	return "MarketNotfound : " + e.pair.toString()
+	return "MarketNotfound : " + e.pair.ToString()
 }
 
 type OrderType string
@@ -41,30 +43,30 @@ type TradingPair struct {
 	Quote string `json:"quote"`
 }
 
-func newTradingPair(base string, quote string) TradingPair {
+func NewTradingPair(base string, quote string) TradingPair {
 	return TradingPair{
 		Base:  base,
 		Quote: quote,
 	}
 }
 
-func (pair *TradingPair) toString() string {
+func (pair *TradingPair) ToString() string {
 	return pair.Base + "/" + pair.Quote
 }
 
 type TradingPlatform struct {
-	accounts   *Accounts
+	accounts   *accounting.Accounts
 	Orderbooks map[TradingPair]*Orderbook `json:"orderbooks"`
 }
 
-func newTradingPlatform() *TradingPlatform {
+func NewTradingPlatform() *TradingPlatform {
 	return &TradingPlatform{
-		accounts:   newAccounts(),
+		accounts:   accounting.NewAccounts(),
 		Orderbooks: make(map[TradingPair]*Orderbook),
 	}
 }
 
-func (platform *TradingPlatform) addNewMarket(pair TradingPair) *Orderbook {
+func (platform *TradingPlatform) AddNewMarket(pair TradingPair) *Orderbook {
 	ob := newOrderBook()
 	ob.Market = &pair
 	platform.Orderbooks[pair] = ob
@@ -72,7 +74,7 @@ func (platform *TradingPlatform) addNewMarket(pair TradingPair) *Orderbook {
 	return ob
 }
 
-func (platform *TradingPlatform) placeMarketOrder(pair TradingPair, order *Order) ([]Match, error) {
+func (platform *TradingPlatform) PlaceMarketOrder(pair TradingPair, order *Order) ([]Match, error) {
 	orderbook, err := platform.getOrderBook(pair)
 
 	if err != nil {
@@ -87,7 +89,7 @@ func (platform *TradingPlatform) placeMarketOrder(pair TradingPair, order *Order
 	return matches, nil
 }
 
-func (platform *TradingPlatform) placeLimitOrder(pair TradingPair, price float64, order *Order) error {
+func (platform *TradingPlatform) PlaceLimitOrder(pair TradingPair, price float64, order *Order) error {
 	orderbook, err := platform.getOrderBook(pair)
 
 	if err != nil {

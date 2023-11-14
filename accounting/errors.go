@@ -1,4 +1,4 @@
-package main
+package accounting
 
 type AccountNotFoundError struct {
 	signer string

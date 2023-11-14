@@ -1,4 +1,4 @@
-package main
+package orderbook
 
 import (
 	"encoding/json"
@@ -36,7 +36,7 @@ type Order struct {
 	Timestamp int64   `json:"timestamp"`
 }
 
-func newOrder(side Side, size float64) *Order {
+func NewOrder(side Side, size float64) *Order {
 	return &Order{
 		Side:      side,
 		Size:      size,

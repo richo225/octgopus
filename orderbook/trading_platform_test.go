@@ -1,4 +1,4 @@
-package main
+package orderbook
 
 import (
 	"testing"
@@ -7,24 +7,24 @@ import (
 )
 
 func TestNewTradingPair(t *testing.T) {
-	tradingPair := newTradingPair("BTC", "USD")
+	tradingPair := NewTradingPair("BTC", "USD")
 
 	assert.Equal(t, "BTC", tradingPair.Base, "trading pair should have the correct base currency")
 	assert.Equal(t, "USD", tradingPair.Quote, "trading pair should have the correct quote currency")
 }
 
 func TestNewTradingPlatform(t *testing.T) {
-	tradingPlatform := newTradingPlatform()
+	tradingPlatform := NewTradingPlatform()
 
 	assert.Empty(t, tradingPlatform.Orderbooks, "matching tradingPlatform should initialise with empty orderbooks")
 }
 
 func TestTradingPlatformAddNewMarket(t *testing.T) {
-	tradingPlatform := newTradingPlatform()
+	tradingPlatform := NewTradingPlatform()
 	pair := TradingPair{"BTC", "USD"}
 
-	tradingPlatform.addNewMarket(pair)
-	tradingPlatform.addNewMarket(pair)
+	tradingPlatform.AddNewMarket(pair)
+	tradingPlatform.AddNewMarket(pair)
 
 	assert.Equal(t, 1, len(tradingPlatform.Orderbooks), "tradingPlatform should have 1 order book")
 	assert.NotNil(t, tradingPlatform.Orderbooks[pair], "tradingPlatform should have an order book for pair")
@@ -32,10 +32,10 @@ func TestTradingPlatformAddNewMarket(t *testing.T) {
 }
 
 func TestTradingPlatformGetOrderBook(t *testing.T) {
-	tradingPlatform := newTradingPlatform()
+	tradingPlatform := NewTradingPlatform()
 	pair := TradingPair{"BTC", "USD"}
 
-	tradingPlatform.addNewMarket(pair)
+	tradingPlatform.AddNewMarket(pair)
 
 	orderBook, err := tradingPlatform.getOrderBook(pair)
 	assert.NoError(t, err, "getOrderBook should not return an error")
@@ -47,20 +47,20 @@ func TestTradingPlatformGetOrderBook(t *testing.T) {
 }
 
 func TestTrdingPlatformPlaceLimitOrder(t *testing.T) {
-	tradingPlatform := newTradingPlatform()
+	tradingPlatform := NewTradingPlatform()
 	pair := TradingPair{"BTC", "USD"}
 
-	tradingPlatform.addNewMarket(pair)
+	tradingPlatform.AddNewMarket(pair)
 
-	buyOrder1 := newOrder(Bid, 5)
-	buyOrder2 := newOrder(Bid, 8)
-	buyOrder3 := newOrder(Bid, 13)
-	sellOrder := newOrder(Ask, 5)
+	buyOrder1 := NewOrder(Bid, 5)
+	buyOrder2 := NewOrder(Bid, 8)
+	buyOrder3 := NewOrder(Bid, 13)
+	sellOrder := NewOrder(Ask, 5)
 
-	tradingPlatform.placeLimitOrder(pair, 250, buyOrder1)
-	tradingPlatform.placeLimitOrder(pair, 250, buyOrder2)
-	tradingPlatform.placeLimitOrder(pair, 410, buyOrder3)
-	tradingPlatform.placeLimitOrder(pair, 120, sellOrder)
+	tradingPlatform.PlaceLimitOrder(pair, 250, buyOrder1)
+	tradingPlatform.PlaceLimitOrder(pair, 250, buyOrder2)
+	tradingPlatform.PlaceLimitOrder(pair, 410, buyOrder3)
+	tradingPlatform.PlaceLimitOrder(pair, 120, sellOrder)
 
 	orderbook, _ := tradingPlatform.getOrderBook(pair)
 

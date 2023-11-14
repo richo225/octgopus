@@ -4,13 +4,14 @@ import (
 	"github.com/kr/pretty"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/richo225/octgopus/orderbook"
 )
 
 func main() {
 	e := echo.New()
-	p := newTradingPlatform()
+	p := orderbook.NewTradingPlatform()
 
-	p.seedData()
+	seedData(p)
 
 	e.Use(middleware.RequestID())
 	e.Use(middleware.Logger())

@@ -1,4 +1,4 @@
-package main
+package orderbook
 
 import (
 	"testing"
@@ -15,7 +15,7 @@ func TestNewLimit(t *testing.T) {
 
 func TestLimitAddOrder(t *testing.T) {
 	limit := newLimit(250)
-	order := newOrder(Bid, 5)
+	order := NewOrder(Bid, 5)
 
 	limit.addOrder(order)
 
@@ -27,9 +27,9 @@ func TestLimitAddOrder(t *testing.T) {
 func TestLimitRemoveOrder(t *testing.T) {
 	limit := newLimit(100)
 
-	order1 := newOrder(Ask, 10)
-	order2 := newOrder(Ask, 20)
-	order3 := newOrder(Ask, 30)
+	order1 := NewOrder(Ask, 10)
+	order2 := NewOrder(Ask, 20)
+	order3 := NewOrder(Ask, 30)
 
 	limit.addOrder(order1)
 	limit.addOrder(order2)
@@ -46,8 +46,8 @@ func TestLimitRemoveOrder(t *testing.T) {
 
 func TestLimitMatchOrder(t *testing.T) {
 	limit := newLimit(250)
-	sellOrder := newOrder(Ask, 3)
-	buyOrder := newOrder(Bid, 3)
+	sellOrder := NewOrder(Ask, 3)
+	buyOrder := NewOrder(Bid, 3)
 
 	limit.addOrder(sellOrder)
 
@@ -67,8 +67,8 @@ func TestLimitMatchOrder(t *testing.T) {
 
 func TestLimitFillOrders(t *testing.T) {
 	limit := newLimit(250)
-	sellOrder := newOrder(Ask, 1)
-	buyOrder := newOrder(Bid, 3)
+	sellOrder := NewOrder(Ask, 1)
+	buyOrder := NewOrder(Bid, 3)
 
 	limit.addOrder(buyOrder)
 

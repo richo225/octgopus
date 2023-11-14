@@ -1,4 +1,4 @@
-package main
+package orderbook
 
 import (
 	"testing"
@@ -42,9 +42,9 @@ func TestOrderBookBids(t *testing.T) {
 func TestOrderbookTotalBidVolume(t *testing.T) {
 	orderBook := newOrderBook()
 
-	order1 := newOrder(Bid, 10)
-	order2 := newOrder(Bid, 20)
-	order3 := newOrder(Bid, 30)
+	order1 := NewOrder(Bid, 10)
+	order2 := NewOrder(Bid, 20)
+	order3 := NewOrder(Bid, 30)
 
 	orderBook.placeLimitOrder(100, order1)
 	orderBook.placeLimitOrder(100, order2)
@@ -56,9 +56,9 @@ func TestOrderbookTotalBidVolume(t *testing.T) {
 func TestOrderbookTotalAskVolume(t *testing.T) {
 	orderBook := newOrderBook()
 
-	order1 := newOrder(Ask, 10)
-	order2 := newOrder(Ask, 20)
-	order3 := newOrder(Ask, 30)
+	order1 := NewOrder(Ask, 10)
+	order2 := NewOrder(Ask, 20)
+	order3 := NewOrder(Ask, 30)
 
 	orderBook.placeLimitOrder(100, order1)
 	orderBook.placeLimitOrder(100, order2)
@@ -69,10 +69,10 @@ func TestOrderbookTotalAskVolume(t *testing.T) {
 
 func TestOrderBookPlaceLimitOrder(t *testing.T) {
 	orderbook := newOrderBook()
-	buyOrder1 := newOrder(Bid, 5)
-	buyOrder2 := newOrder(Bid, 8)
-	buyOrder3 := newOrder(Bid, 13)
-	sellOrder := newOrder(Ask, 5)
+	buyOrder1 := NewOrder(Bid, 5)
+	buyOrder2 := NewOrder(Bid, 8)
+	buyOrder3 := NewOrder(Bid, 13)
+	sellOrder := NewOrder(Ask, 5)
 
 	orderbook.placeLimitOrder(250, buyOrder1)
 	orderbook.placeLimitOrder(250, buyOrder2)
@@ -96,8 +96,8 @@ func TestOrderBookPlaceLimitOrder(t *testing.T) {
 
 func TestOrderBookPlaceMarketBuyOrder(t *testing.T) {
 	orderbook := newOrderBook()
-	buyOrder := newOrder(Bid, 3)
-	sellOrder := newOrder(Ask, 8)
+	buyOrder := NewOrder(Bid, 3)
+	sellOrder := NewOrder(Ask, 8)
 
 	orderbook.placeLimitOrder(250, sellOrder)
 	expectedMatches := []Match{{
@@ -116,9 +116,9 @@ func TestOrderBookPlaceMarketBuyOrder(t *testing.T) {
 
 func TestOrderBookPlaceMarketBuyOrderMultiMatch(t *testing.T) {
 	orderbook := newOrderBook()
-	buyOrder := newOrder(Bid, 3)
-	sellOrder1 := newOrder(Ask, 8)
-	sellOrder2 := newOrder(Ask, 2)
+	buyOrder := NewOrder(Bid, 3)
+	sellOrder1 := NewOrder(Ask, 8)
+	sellOrder2 := NewOrder(Ask, 2)
 
 	orderbook.placeLimitOrder(250, sellOrder1)
 	orderbook.placeLimitOrder(250, sellOrder2)
@@ -139,9 +139,9 @@ func TestOrderBookPlaceMarketBuyOrderMultiMatch(t *testing.T) {
 
 func TestOrderBookPlaceMarketBuyOrderMultiPriceLimitMatch(t *testing.T) {
 	orderbook := newOrderBook()
-	buyOrder := newOrder(Bid, 3)
-	sellOrder1 := newOrder(Ask, 8)
-	sellOrder2 := newOrder(Ask, 2)
+	buyOrder := NewOrder(Bid, 3)
+	sellOrder1 := NewOrder(Ask, 8)
+	sellOrder2 := NewOrder(Ask, 2)
 
 	orderbook.placeLimitOrder(250, sellOrder1)
 	orderbook.placeLimitOrder(240, sellOrder2)
@@ -173,8 +173,8 @@ func TestOrderBookPlaceMarketBuyOrderMultiPriceLimitMatch(t *testing.T) {
 
 func TestOrderBookPlaceMarketBuyOrderInsufficientVolume(t *testing.T) {
 	orderbook := newOrderBook()
-	buyOrder := newOrder(Bid, 3)
-	sellOrder := newOrder(Ask, 2)
+	buyOrder := NewOrder(Bid, 3)
+	sellOrder := NewOrder(Ask, 2)
 
 	orderbook.placeLimitOrder(250, sellOrder)
 
@@ -187,8 +187,8 @@ func TestOrderBookPlaceMarketBuyOrderInsufficientVolume(t *testing.T) {
 
 func TestOrderBookPlaceMarketSellOrder(t *testing.T) {
 	orderbook := newOrderBook()
-	sellOrder := newOrder(Ask, 3)
-	buyOrder := newOrder(Bid, 8)
+	sellOrder := NewOrder(Ask, 3)
+	buyOrder := NewOrder(Bid, 8)
 
 	orderbook.placeLimitOrder(250, buyOrder)
 	expectedMatches := []Match{{
@@ -206,9 +206,9 @@ func TestOrderBookPlaceMarketSellOrder(t *testing.T) {
 
 func TestOrderBookPlaceMarketSellOrderMultiMatch(t *testing.T) {
 	orderbook := newOrderBook()
-	sellOrder := newOrder(Ask, 3)
-	buyOrder1 := newOrder(Bid, 8)
-	buyOrder2 := newOrder(Bid, 2)
+	sellOrder := NewOrder(Ask, 3)
+	buyOrder1 := NewOrder(Bid, 8)
+	buyOrder2 := NewOrder(Bid, 2)
 
 	orderbook.placeLimitOrder(250, buyOrder1)
 	orderbook.placeLimitOrder(250, buyOrder2)
@@ -229,9 +229,9 @@ func TestOrderBookPlaceMarketSellOrderMultiMatch(t *testing.T) {
 
 func TestOrderBookPlaceMarketSellOrderMultiPriceLimitMatch(t *testing.T) {
 	orderbook := newOrderBook()
-	sellOrder := newOrder(Ask, 3)
-	buyOrder1 := newOrder(Bid, 8)
-	buyOrder2 := newOrder(Bid, 2)
+	sellOrder := NewOrder(Ask, 3)
+	buyOrder1 := NewOrder(Bid, 8)
+	buyOrder2 := NewOrder(Bid, 2)
 
 	orderbook.placeLimitOrder(250, buyOrder2)
 	orderbook.placeLimitOrder(240, buyOrder1)
@@ -263,8 +263,8 @@ func TestOrderBookPlaceMarketSellOrderMultiPriceLimitMatch(t *testing.T) {
 
 func TestOrderBookPlaceMarketSellOrderInsufficientVolume(t *testing.T) {
 	orderbook := newOrderBook()
-	sellOrder := newOrder(Ask, 3)
-	buyOrder := newOrder(Bid, 2)
+	sellOrder := NewOrder(Ask, 3)
+	buyOrder := NewOrder(Bid, 2)
 
 	orderbook.placeLimitOrder(250, buyOrder)
 
@@ -276,9 +276,9 @@ func TestOrderBookPlaceMarketSellOrderInsufficientVolume(t *testing.T) {
 func TestOrderbookCancelOrder(t *testing.T) {
 	orderBook := newOrderBook()
 
-	order1 := newOrder(Bid, 10)
-	order2 := newOrder(Bid, 20)
-	order3 := newOrder(Bid, 30)
+	order1 := NewOrder(Bid, 10)
+	order2 := NewOrder(Bid, 20)
+	order3 := NewOrder(Bid, 30)
 
 	orderBook.placeLimitOrder(100, order1)
 	orderBook.placeLimitOrder(100, order2)

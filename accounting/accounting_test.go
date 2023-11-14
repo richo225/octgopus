@@ -1,4 +1,4 @@
-package main
+package accounting
 
 import (
 	"testing"
@@ -7,14 +7,14 @@ import (
 )
 
 func TestBalanceOfAccountNotFound(t *testing.T) {
-	accounts := newAccounts()
+	accounts := NewAccounts()
 
 	_, err := accounts.balanceOf("alice")
 	assert.IsType(t, &AccountNotFoundError{}, err, "balanceOf(alice) should return an AccountNotFoundError")
 }
 
 func TestBalanceOfAccountExists(t *testing.T) {
-	accounts := newAccounts()
+	accounts := NewAccounts()
 	accounts.createAccount("alice")
 	accounts.deposit("alice", 100)
 
@@ -24,7 +24,7 @@ func TestBalanceOfAccountExists(t *testing.T) {
 }
 
 func TestDepositAccountNotFound(t *testing.T) {
-	accounts := newAccounts()
+	accounts := NewAccounts()
 
 	tx := accounts.deposit("alice", 100)
 	assert.Equal(t, Deposit, tx.Action, "deposit(alice) should return a Deposit Tx")
@@ -37,7 +37,7 @@ func TestDepositAccountNotFound(t *testing.T) {
 }
 
 func TestDepositExistingAccount(t *testing.T) {
-	accounts := newAccounts()
+	accounts := NewAccounts()
 	accounts.Accounts["alice"] = 50
 
 	tx := accounts.deposit("alice", 100)
@@ -50,7 +50,7 @@ func TestDepositExistingAccount(t *testing.T) {
 }
 
 func TestWithdrawAccountNotFound(t *testing.T) {
-	accounts := newAccounts()
+	accounts := NewAccounts()
 
 	_, err := accounts.withdraw("alice", 50)
 	assert.Error(t, err, "withdraw(alice, 50) should return an error")
@@ -58,7 +58,7 @@ func TestWithdrawAccountNotFound(t *testing.T) {
 }
 
 func TestWithdrawInsufficientFunds(t *testing.T) {
-	accounts := newAccounts()
+	accounts := NewAccounts()
 	accounts.createAccount("alice")
 
 	_, err := accounts.withdraw("alice", 150)
@@ -67,7 +67,7 @@ func TestWithdrawInsufficientFunds(t *testing.T) {
 }
 
 func TestWithdrawSufficientFunds(t *testing.T) {
-	accounts := newAccounts()
+	accounts := NewAccounts()
 	accounts.createAccount("alice")
 	accounts.deposit("alice", 100)
 
@@ -83,7 +83,7 @@ func TestWithdrawSufficientFunds(t *testing.T) {
 }
 
 func TestSendWithSenderNotFound(t *testing.T) {
-	accounts := newAccounts()
+	accounts := NewAccounts()
 	accounts.createAccount("bob")
 
 	_, err := accounts.send("alice", "bob", 50)
@@ -91,7 +91,7 @@ func TestSendWithSenderNotFound(t *testing.T) {
 }
 
 func TestSendWithSenderUnderFunded(t *testing.T) {
-	accounts := newAccounts()
+	accounts := NewAccounts()
 	accounts.createAccount("alice")
 	accounts.deposit("alice", 25)
 
@@ -100,7 +100,7 @@ func TestSendWithSenderUnderFunded(t *testing.T) {
 }
 
 func TestSendWSuccess(t *testing.T) {
-	accounts := newAccounts()
+	accounts := NewAccounts()
 	accounts.createAccount("alice")
 	accounts.createAccount("bob")
 	accounts.deposit("alice", 100)

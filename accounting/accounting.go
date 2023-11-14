@@ -1,4 +1,4 @@
-package main
+package accounting
 
 type TxAction string
 
@@ -18,7 +18,7 @@ type Accounts struct {
 	Accounts map[string]float64 `json:"accounts"`
 }
 
-func newAccounts() *Accounts {
+func NewAccounts() *Accounts {
 	return &Accounts{
 		Accounts: make(map[string]float64),
 	}

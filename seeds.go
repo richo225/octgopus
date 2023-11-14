@@ -6,26 +6,27 @@ import (
 	"strconv"
 
 	"github.com/kr/pretty"
+	"github.com/richo225/octgopus/orderbook"
 )
 
-func (platform *TradingPlatform) seedData() {
+func seedData(platform *orderbook.TradingPlatform) {
 	pretty.Log("Seeding data...")
 
-	ethusd := newTradingPair("ETH", "USD")
-	ethgbp := newTradingPair("ETH", "GBP")
-	btcusd := newTradingPair("BTC", "USD")
-	btcgbp := newTradingPair("BTC", "GBP")
+	ethusd := orderbook.NewTradingPair("ETH", "USD")
+	ethgbp := orderbook.NewTradingPair("ETH", "GBP")
+	btcusd := orderbook.NewTradingPair("BTC", "USD")
+	btcgbp := orderbook.NewTradingPair("BTC", "GBP")
 
-	platform.writeFromFile("data/eth_usd_order_book.csv", ethusd)
-	platform.writeFromFile("data/eth_gbp_order_book.csv", ethgbp)
-	platform.writeFromFile("data/btc_usd_order_book.csv", btcusd)
-	platform.writeFromFile("data/btc_gbp_order_book.csv", btcgbp)
+	writeFromFile(platform, "data/eth_usd_order_book.csv", ethusd)
+	writeFromFile(platform, "data/eth_gbp_order_book.csv", ethgbp)
+	writeFromFile(platform, "data/btc_usd_order_book.csv", btcusd)
+	writeFromFile(platform, "data/btc_gbp_order_book.csv", btcgbp)
 
 	pretty.Log("Seeding data complete!")
 }
 
-func (platform *TradingPlatform) writeFromFile(filepath string, pair TradingPair) {
-	pretty.Log("Seeding data for " + pair.toString() + "...")
+func writeFromFile(platform *orderbook.TradingPlatform, filepath string, pair orderbook.TradingPair) {
+	pretty.Log("Seeding data for " + pair.ToString() + "...")
 
 	f, err := os.Open(filepath)
 	if err != nil {
@@ -39,7 +40,7 @@ func (platform *TradingPlatform) writeFromFile(filepath string, pair TradingPair
 		panic(err)
 	}
 
-	platform.addNewMarket(pair)
+	platform.AddNewMarket(pair)
 
 	for {
 		record, err := r.Read()
@@ -52,12 +53,12 @@ func (platform *TradingPlatform) writeFromFile(filepath string, pair TradingPair
 		bidPrice, _ := strconv.ParseFloat(record[2], 64)
 		bidAmount, _ := strconv.ParseFloat(record[3], 64)
 
-		askOrder := newOrder(Ask, askAmount)
-		platform.placeLimitOrder(pair, askPrice, askOrder)
+		askOrder := orderbook.NewOrder(orderbook.Ask, askAmount)
+		platform.PlaceLimitOrder(pair, askPrice, askOrder)
 
-		bidOrder := newOrder(Bid, bidAmount)
-		platform.placeLimitOrder(pair, bidPrice, bidOrder)
+		bidOrder := orderbook.NewOrder(orderbook.Bid, bidAmount)
+		platform.PlaceLimitOrder(pair, bidPrice, bidOrder)
 	}
 
-	pretty.Log("Seeding data for " + pair.toString() + " complete!")
+	pretty.Log("Seeding data for " + pair.ToString() + " complete!")
 }
