@@ -8,11 +8,6 @@ import (
 	"github.com/richo225/octgopus/orderbook"
 )
 
-type CustomContext struct {
-	echo.Context
-	platform *orderbook.TradingPlatform
-}
-
 func CheckHealth(c echo.Context) error {
 	return c.String(http.StatusOK, "Up")
 }
@@ -21,8 +16,8 @@ func CheckHealth(c echo.Context) error {
 func (c *CustomContext) handleCreateOrderbook() error {
 	params := MarketParams{}
 	c.Bind(&params)
-	pair := orderbook.NewTradingPair(params.Base, params.Quote)
 
+	pair := orderbook.NewTradingPair(params.Base, params.Quote)
 	orderbook := c.platform.AddNewMarket(pair)
 
 	return c.JSON(http.StatusOK, &orderbook)
@@ -31,6 +26,7 @@ func (c *CustomContext) handleCreateOrderbook() error {
 func (c *CustomContext) handleGetOrderbook() error {
 	params := MarketParams{}
 	c.Bind(&params)
+
 	pair := orderbook.NewTradingPair(params.Base, params.Quote)
 
 	orderbook, err := c.platform.GetOrderBook(pair)

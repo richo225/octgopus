@@ -5,6 +5,11 @@ import (
 	"github.com/richo225/octgopus/orderbook"
 )
 
+type CustomContext struct {
+	echo.Context
+	platform *orderbook.TradingPlatform
+}
+
 func registerHandlers(e *echo.Echo, p *orderbook.TradingPlatform) {
 	withPlatform := func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {

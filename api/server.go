@@ -19,6 +19,7 @@ func Start(p *orderbook.TradingPlatform) {
 		AllowMethods: []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
 	}))
 
+	e.Binder = &Binder{}
 	e.Validator = NewValidator()
 	e.HTTPErrorHandler = HTTPErrorHandler
 
