@@ -20,6 +20,7 @@ func Start(p *orderbook.TradingPlatform) {
 	}))
 
 	e.Validator = NewValidator()
+	e.HTTPErrorHandler = HTTPErrorHandler
 
 	registerHandlers(e, p)
 

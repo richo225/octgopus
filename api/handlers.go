@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/richo225/octgopus/accounting"
 	"github.com/richo225/octgopus/orderbook"
 )
 
@@ -36,7 +35,7 @@ func (c *CustomContext) handleGetOrderbook() error {
 
 	orderbook, err := c.platform.GetOrderBook(pair)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+		return err
 	}
 
 	orderbook.GetAsks()
@@ -48,9 +47,7 @@ func (c *CustomContext) handleGetOrderbook() error {
 // Orders
 func (c *CustomContext) handleCreateOrder() error {
 	params := PlaceOrderRequestParams{}
-	if err := c.Bind(&params); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
+	c.Bind(&params)
 
 	pair := orderbook.NewTradingPair(params.Base, params.Quote)
 	order := orderbook.NewOrder(params.Side, params.Size)
@@ -58,7 +55,7 @@ func (c *CustomContext) handleCreateOrder() error {
 	if params.Type == orderbook.MarketOrder {
 		matches, err := c.platform.PlaceMarketOrder(pair, order)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+			return err
 		}
 
 		return c.JSON(http.StatusOK, &matches)
@@ -66,7 +63,7 @@ func (c *CustomContext) handleCreateOrder() error {
 
 	err := c.platform.PlaceLimitOrder(pair, params.Price, order)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return err
 	}
 
 	return c.JSON(http.StatusOK, &order)
@@ -96,7 +93,7 @@ func (c *CustomContext) handleGetAccountBalance() error {
 
 	balance, err := c.platform.Accounts.BalanceOf(params.Signer)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+		return err
 	}
 
 	return c.String(http.StatusOK, fmt.Sprintf("%f", balance))
@@ -116,11 +113,7 @@ func (c *CustomContext) handleAccountWithdraw() error {
 
 	tx, err := c.platform.Accounts.Withdraw(params.Signer, params.Amount)
 	if err != nil {
-		if _, ok := err.(*accounting.AccountNotFoundError); ok {
-			return echo.NewHTTPError(http.StatusNotFound, err.Error())
-		} else if _, ok := err.(*accounting.AccountUnderFundedError); ok {
-			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-		}
+		return err
 	}
 
 	return c.JSON(http.StatusOK, &tx)
@@ -132,11 +125,7 @@ func (c *CustomContext) handleAccountSend() error {
 
 	tx, err := c.platform.Accounts.Send(params.Signer, params.Recipient, params.Amount)
 	if err != nil {
-		if _, ok := err.(*accounting.AccountNotFoundError); ok {
-			return echo.NewHTTPError(http.StatusNotFound, err.Error())
-		} else if _, ok := err.(*accounting.AccountUnderFundedError); ok {
-			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-		}
+		return err
 	}
 
 	return c.JSON(http.StatusOK, &tx)
