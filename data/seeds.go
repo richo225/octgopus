@@ -1,4 +1,4 @@
-package main
+package data
 
 import (
 	"encoding/csv"
@@ -9,7 +9,7 @@ import (
 	"github.com/richo225/octgopus/orderbook"
 )
 
-func seedData(platform *orderbook.TradingPlatform) {
+func SeedOrderBook(platform *orderbook.TradingPlatform) {
 	pretty.Log("Seeding data...")
 
 	ethusd := orderbook.NewTradingPair("ETH", "USD")
