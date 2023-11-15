@@ -16,6 +16,9 @@ func CheckHealth(c echo.Context) error {
 func (c *CustomContext) handleCreateOrderbook() error {
 	params := MarketParams{}
 	c.Bind(&params)
+	if err := c.Validate(&params); err != nil {
+		return err
+	}
 
 	pair := orderbook.NewTradingPair(params.Base, params.Quote)
 	orderbook := c.platform.AddNewMarket(pair)
@@ -26,6 +29,9 @@ func (c *CustomContext) handleCreateOrderbook() error {
 func (c *CustomContext) handleGetOrderbook() error {
 	params := MarketParams{}
 	c.Bind(&params)
+	if err := c.Validate(&params); err != nil {
+		return err
+	}
 
 	pair := orderbook.NewTradingPair(params.Base, params.Quote)
 
@@ -44,6 +50,9 @@ func (c *CustomContext) handleGetOrderbook() error {
 func (c *CustomContext) handleCreateOrder() error {
 	params := PlaceOrderRequestParams{}
 	c.Bind(&params)
+	if err := c.Validate(&params); err != nil {
+		return err
+	}
 
 	pair := orderbook.NewTradingPair(params.Base, params.Quote)
 	order := orderbook.NewOrder(params.Side, params.Size)
@@ -86,6 +95,9 @@ func (c *CustomContext) handleGetAccounts() error {
 func (c *CustomContext) handleGetAccountBalance() error {
 	params := AccountBalanceParams{}
 	c.Bind(&params)
+	if err := c.Validate(&params); err != nil {
+		return err
+	}
 
 	balance, err := c.platform.Accounts.BalanceOf(params.Signer)
 	if err != nil {
@@ -98,6 +110,9 @@ func (c *CustomContext) handleGetAccountBalance() error {
 func (c *CustomContext) handleAccountDeposit() error {
 	params := AccountActionParams{}
 	c.Bind(&params)
+	if err := c.Validate(&params); err != nil {
+		return err
+	}
 
 	tx := c.platform.Accounts.Deposit(params.Signer, params.Amount)
 	return c.JSON(http.StatusOK, &tx)
@@ -106,6 +121,9 @@ func (c *CustomContext) handleAccountDeposit() error {
 func (c *CustomContext) handleAccountWithdraw() error {
 	params := AccountActionParams{}
 	c.Bind(&params)
+	if err := c.Validate(&params); err != nil {
+		return err
+	}
 
 	tx, err := c.platform.Accounts.Withdraw(params.Signer, params.Amount)
 	if err != nil {
@@ -118,6 +136,9 @@ func (c *CustomContext) handleAccountWithdraw() error {
 func (c *CustomContext) handleAccountSend() error {
 	params := AccountSendParams{}
 	c.Bind(&params)
+	if err := c.Validate(&params); err != nil {
+		return err
+	}
 
 	tx, err := c.platform.Accounts.Send(params.Signer, params.Recipient, params.Amount)
 	if err != nil {

@@ -7,14 +7,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type Validator struct {
+	validator *validator.Validate
+}
+
 func NewValidator() *Validator {
 	return &Validator{
 		validator: validator.New(),
 	}
-}
-
-type Validator struct {
-	validator *validator.Validate
 }
 
 func (v *Validator) Validate(i interface{}) error {
