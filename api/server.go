@@ -4,7 +4,7 @@ import (
 	"github.com/kr/pretty"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/richo225/octgopus/orderbook"
+	"github.com/richo225/octgopus/internal/orderbook"
 )
 
 func Start(p *orderbook.TradingPlatform) {

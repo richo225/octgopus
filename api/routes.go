@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/richo225/octgopus/orderbook"
+	"github.com/richo225/octgopus/internal/orderbook"
 )
 
 type CustomContext struct {

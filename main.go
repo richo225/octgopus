@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/richo225/octgopus/api"
 	"github.com/richo225/octgopus/data"
-	"github.com/richo225/octgopus/orderbook"
+	"github.com/richo225/octgopus/internal/orderbook"
 )
 
 func main() {

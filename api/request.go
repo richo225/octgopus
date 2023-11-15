@@ -1,6 +1,6 @@
 package api
 
-import "github.com/richo225/octgopus/orderbook"
+import "github.com/richo225/octgopus/internal/orderbook"
 
 type PlaceOrderRequestParams struct {
 	MarketParams

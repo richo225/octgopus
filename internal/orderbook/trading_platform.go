@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/richo225/octgopus/accounting"
+	"github.com/richo225/octgopus/internal/accounting"
 )
 
 type OrderType string

@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/kr/pretty"
-	"github.com/richo225/octgopus/orderbook"
+	"github.com/richo225/octgopus/internal/orderbook"
 )
 
 func SeedOrderBook(platform *orderbook.TradingPlatform) {
