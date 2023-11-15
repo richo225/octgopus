@@ -2,6 +2,7 @@ package orderbook
 
 import (
 	"sort"
+	"sync"
 )
 
 type Orderbook struct {
@@ -10,6 +11,8 @@ type Orderbook struct {
 	Bids      []*Limit           `json:"bids"`
 	askLimits map[float64]*Limit `json:"-"`
 	bidLimits map[float64]*Limit `json:"-"`
+
+	mu sync.RWMutex
 }
 
 func newOrderBook() *Orderbook {
@@ -72,6 +75,9 @@ func (book *Orderbook) totalAskVolume() float64 {
 }
 
 func (book *Orderbook) placeLimitOrder(price float64, order *Order) *Order {
+	book.mu.Lock()
+	defer book.mu.Unlock()
+
 	if order.Side == Bid {
 		limit, ok := book.bidLimits[price]
 		if ok {
@@ -98,6 +104,9 @@ func (book *Orderbook) placeLimitOrder(price float64, order *Order) *Order {
 }
 
 func (book *Orderbook) placeMarketOrder(order *Order) ([]Match, error) {
+	book.mu.Lock()
+	defer book.mu.Unlock()
+
 	matches := []Match{}
 
 	if order.Side == Bid {

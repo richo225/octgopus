@@ -3,6 +3,7 @@ package orderbook
 import (
 	"encoding/json"
 	"errors"
+	"sync"
 
 	"github.com/richo225/octgopus/internal/accounting"
 )
@@ -49,6 +50,8 @@ func (pair *TradingPair) ToString() string {
 type TradingPlatform struct {
 	Accounts   *accounting.Accounts
 	Orderbooks map[TradingPair]*Orderbook `json:"orderbooks"`
+
+	mu sync.RWMutex
 }
 
 func NewTradingPlatform() *TradingPlatform {
@@ -59,6 +62,9 @@ func NewTradingPlatform() *TradingPlatform {
 }
 
 func (platform *TradingPlatform) AddNewMarket(pair TradingPair) *Orderbook {
+	platform.mu.Lock()
+	defer platform.mu.Unlock()
+
 	ob := newOrderBook()
 	ob.Market = &pair
 	platform.Orderbooks[pair] = ob
@@ -67,7 +73,9 @@ func (platform *TradingPlatform) AddNewMarket(pair TradingPair) *Orderbook {
 }
 
 func (platform *TradingPlatform) PlaceMarketOrder(pair TradingPair, order *Order) ([]Match, error) {
+	platform.mu.RLock()
 	orderbook, err := platform.GetOrderBook(pair)
+	platform.mu.RUnlock()
 
 	if err != nil {
 		return nil, err
@@ -82,7 +90,9 @@ func (platform *TradingPlatform) PlaceMarketOrder(pair TradingPair, order *Order
 }
 
 func (platform *TradingPlatform) PlaceLimitOrder(pair TradingPair, price float64, order *Order) error {
+	platform.mu.RLock()
 	orderbook, err := platform.GetOrderBook(pair)
+	platform.mu.RUnlock()
 
 	if err != nil {
 		return err
