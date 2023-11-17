@@ -22,6 +22,7 @@ func registerHandlers(e *echo.Echo, p *orderbook.TradingPlatform) {
 
 	orderbooks := e.Group("/orderbooks", withPlatform)
 	orderbooks.GET("", withCustomContext((*CustomContext).handleGetOrderbook))
+	orderbooks.GET("/reset", withCustomContext((*CustomContext).handleResetOrderbooks))
 	orderbooks.POST("", withCustomContext((*CustomContext).handleCreateOrderbook))
 
 	orders := e.Group("/orders", withPlatform)

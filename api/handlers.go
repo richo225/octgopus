@@ -46,6 +46,11 @@ func (c *CustomContext) handleGetOrderbook() error {
 	return c.JSON(http.StatusOK, &orderbook)
 }
 
+func (c *CustomContext) handleResetOrderbooks() error {
+	c.platform.Reset()
+	return c.String(http.StatusOK, "Orderbooks reset successfully")
+}
+
 // Orders
 func (c *CustomContext) handleCreateOrder() error {
 	params := PlaceOrderRequestParams{}
