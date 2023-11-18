@@ -1,6 +1,10 @@
 package api
 
 import (
+	"fmt"
+	"os"
+	"strings"
+
 	"github.com/kr/pretty"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -15,7 +19,7 @@ func Start(p *orderbook.TradingPlatform) {
 	e.Use(middleware.Recover())
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:3000", "http://localhost:3001"},
+		AllowOrigins: strings.Split(os.Getenv("ALLOWED_ORIGINS"), ","),
 		AllowMethods: []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
 	}))
 
@@ -26,5 +30,7 @@ func Start(p *orderbook.TradingPlatform) {
 	registerHandlers(e, p)
 
 	pretty.Log("Starting server...")
-	e.Logger.Fatal(e.Start("localhost:8080"))
+
+	port := os.Getenv("PORT")
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", port)))
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/richo225/octgopus/api"
 	"github.com/richo225/octgopus/internal/orderbook"
 )
