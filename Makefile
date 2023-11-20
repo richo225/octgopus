@@ -1,8 +1,8 @@
 build: 
-	go build -o bin/octgopus
+	go build -o cmd/api/api cmd/api/main.go
 
-run: build
-	./bin/octgopus
+run:
+	go run cmd/api/main.go
 
 test:
 	go test -v ./...
