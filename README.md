@@ -64,28 +64,28 @@ Copy the example .env.dist file in the project directory to .env and fill in the
 To build the application, run the following command in the project directory:
 
 ```
-  go build
+  make build
 ```
-This will create an executable file in the same directory.
+This will create an executable file in the cmd/api directory.
 
 ### Run
 Either run the generated executable via:
 
 ```shell
-  ./octgopus
+  ./cmd/api/api
 ```
 
-Or combine the previous steps with:
+Or simply combine the previous steps with:
 
 ```
-  go run .
+  make run
 ```
 
 ### Tests
 To run the tests, use the following command:
 
 ```shell
-  go test ./...
+  make test
 ```
 
 This will run all tests in the project.
